@@ -1,0 +1,1 @@
+import{_t as e,n as t,rt as n}from"./chunks/framework.C6TizvAB.js";var r=JSON.parse(`{"title":"首页","description":"无用处实验室","frontmatter":{"layout":"home","title":"首页","description":"无用处实验室"},"headers":[],"relativePath":"index.md","filePath":"index.md"}`),i={name:`index.md`};function a(t,r,i,a,o,s){return e(),n(`div`)}var o=t(i,[[`render`,a]]);export{r as __pageData,o as default};

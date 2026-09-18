@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>无用处</title>
+    <link>https://example.com/</link>
+    <description>无用处实验室，看似无用，实则真的无用。</description>
+    <language>zh-CN</language>
+    <atom:link href="https://example.com/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>supplement</title>
+      <link>https://example.com/articles/fitness/basics/supplement</link>
+      <guid isPermaLink="true">https://example.com/articles/fitness/basics/supplement</guid>
+      <description></description>
+      <pubDate>Fri, 18 Sep 2026 13:50:57 GMT</pubDate>
+
+    </item>
+    <item>
+      <title>从购买域名到更换域名</title>
+      <link>https://example.com/articles/frontEnd/changed-the-domain</link>
+      <guid isPermaLink="true">https://example.com/articles/frontEnd/changed-the-domain</guid>
+      <description>记录一次完整的博客域名更换流程：DNS 解析、站点配置、SEO 收录迁移与常见的坑。</description>
+      <pubDate>Sun, 30 Aug 2026 00:00:00 GMT</pubDate>
+      <category>工程化</category>
+      <category>博客</category>
+    </item>
+    <item>
+      <title>给 VitePress 博客添加评论</title>
+      <link>https://example.com/articles/frontEnd/comments-to-vitepress</link>
+      <guid isPermaLink="true">https://example.com/articles/frontEnd/comments-to-vitepress</guid>
+      <description>对比 Giscus、Waline、Artalk 三种方案，并给出在 VitePress 中接入 Giscus 的完整步骤。</description>
+      <pubDate>Sun, 12 Jul 2026 00:00:00 GMT</pubDate>
+      <category>博客</category>
+      <category>Vue</category>
+    </item>
+    <item>
+      <title>Vibe Coding 的未来与风险</title>
+      <link>https://example.com/articles/note/vibe-coding-future-and-risk</link>
+      <guid isPermaLink="true">https://example.com/articles/note/vibe-coding-future-and-risk</guid>
+      <description>当"用嘴编程"成为现实，工程师的价值锚点会从写代码转向哪里？聊聊 Vibe Coding 的想象空间与真实风险。</description>
+      <pubDate>Sat, 20 Jun 2026 00:00:00 GMT</pubDate>
+      <category>AI</category>
+      <category>编程</category>
+    </item>
+    <item>
+      <title>Hermes 引擎与小龙虾</title>
+      <link>https://example.com/articles/note/hermes-vs-xiaolongxia</link>
+      <guid isPermaLink="true">https://example.com/articles/note/hermes-vs-xiaolongxia</guid>
+      <description>从 React Native 的 Hermes 引擎聊到性能优化的"小龙虾定律"——为什么去掉最贵的那一环，收益最大。</description>
+      <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
+      <category>JavaScript</category>
+      <category>微信小程序</category>
+    </item>
+    <item>
+      <title>Codex 注册项目分析</title>
+      <link>https://example.com/articles/myProjects/codex-register-project-analysis</link>
+      <guid isPermaLink="true">https://example.com/articles/myProjects/codex-register-project-analysis</guid>
+      <description>拆解一个自动化注册工具的技术实现：请求流程模拟、验证码处理与风控对抗，并讨论其边界与合规性。</description>
+      <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
+      <category>AI</category>
+      <category>Python</category>
+      <category>OAuth</category>
+    </item>
+  </channel>
+</rss>
