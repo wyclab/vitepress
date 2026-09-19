@@ -10,10 +10,18 @@
       <title>迁移至Vitepress，构建文档库类型的博客</title>
       <link>https://example.com/articles/notes/website/to_vitepress</link>
       <guid isPermaLink="true">https://example.com/articles/notes/website/to_vitepress</guid>
-      <description>构建一个。</description>
+      <description>收集碎片化文章，形成树状专题。</description>
       <pubDate>Sat, 19 Sep 2026 00:00:00 GMT</pubDate>
       <category>建站笔记</category>
       <category>AI</category>
+    </item>
+    <item>
+      <title>侧边栏热更新测试</title>
+      <link>https://example.com/articles/zstn/firm/zz-test-hotreload</link>
+      <guid isPermaLink="true">https://example.com/articles/zstn/firm/zz-test-hotreload</guid>
+      <description></description>
+      <pubDate>Sat, 19 Sep 2026 00:00:00 GMT</pubDate>
+      <category>企业观察</category>
     </item>
     <item>
       <title>中美火箭回收有何异同</title>

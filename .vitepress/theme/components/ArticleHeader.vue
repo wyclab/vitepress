@@ -35,8 +35,6 @@ const updated = computed(() => {
 <style scoped>
 .article-header {
   margin-bottom: 1.25rem;
-  padding-bottom: 0.875rem;
-  border-bottom: 1px solid var(--vp-c-divider);
 }
 
 .article-header-title {
@@ -53,6 +51,7 @@ const updated = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 1.25rem;
+  padding-bottom: 0.25rem;
   font-size: 0.875rem;
   color: var(--vp-c-text-2);
 }
