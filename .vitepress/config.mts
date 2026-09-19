@@ -237,11 +237,13 @@ export default defineConfig({
   description: siteDescription,
   ignoreDeadLinks: true,
   head: [
-    // Favicon（public/favicon/ 目录）
+    // Favicon（public/ 根目录 + public/favicon/ 目录）
+    // 注意：iPad/iPhone Safari 只会请求站点根路径的 /apple-touch-icon.png 和 /favicon.ico，
+    // 必须保证这两个文件存在于根目录，否则会显示缓存的默认图标（如腾讯网图标）。
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon/favicon-32x32.png' }],
-    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon/android-chrome-192x192.png' }],
-    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
     // RSS
     ['link', { rel: 'alternate', type: 'application/rss+xml', title: siteTitle, href: '/feed.xml' }],
   ],
