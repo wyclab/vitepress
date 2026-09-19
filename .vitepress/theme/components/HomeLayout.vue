@@ -5,15 +5,15 @@ import { data as posts } from '../posts.data.js'
 
 // ---------- 站点信息（按需修改） ----------
 const authorName = '无用处'
-const authorDesc = '无用的兴趣是最高级的乐趣  | 无用之物是最高等级的美好'
-const avatar = 'https://github.com/wyclab.png'
+const authorDesc = '无用之物是最高等级的美好'
+const avatar = withBase('/favicon/android-chrome-512x512.png')
 const socials = [
   { name: 'GitHub', link: 'https://github.com/wyclab' },
   { name: 'RSS订阅', link: '/feed.xml' },
 ]
 
 const siteTitle = '无用处实验室'
-const siteDesc = '无用处实验室，看似无用，实则真的无用。'
+const siteDesc = '折腾一些好玩的，看似无用，实则真的无用。'
 
 // ---------- 标签统计 ----------
 const tagCounts = computed(() => {

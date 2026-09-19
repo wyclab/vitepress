@@ -1,0 +1,101 @@
+---
+title: '美国房地产'
+description: '美国房地产'
+date: 2026-05-29
+category: 置身事内
+tags: [宏观观察]
+order: 4
+---
+
+
+
+## 美国商业地产监管要求
+
+商业房地产贷款包括收购、开发和建设贷款以及收益型房地产融资。收益型房地产包括出租给第三方的房地产以及由其所有者或其关联方自住的非住宅房地产。
+
+国家银行和联邦储蓄协会的房地产相关贷款及相关活动的标准分别载于《联邦[法规汇编》第12篇第34部分D子部分](https://www.ecfr.gov/current/title-12/part-34/subpart-D)（国家银行）和[第12篇第160.101条（联邦储蓄协会）。有关商业房地产](https://www.ecfr.gov/current/title-12/section-160.101)[评估](https://www.occ.gov/topics/supervision-and-examination/credit/commercial-credit/appraisals.html)的更多信息，请参阅“评估”部分。
+
+## 了解更多
+
+[**商业房地产贷款**](https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/commercial-real-estate-lending/index-commercial-real-estate-lending.html)（审计长手册，2022 年 3 月）
+阐述了商业房地产贷款固有的风险、特定商业房地产贷款活动和物业类型特有的风险以及审慎的风险管理。
+
+## 参考
+
+[**商业贷款：再融资风险**](https://www.occ.gov/news-issuances/bulletins/2024/bulletin-2024-29.html)（OCC 2024-29，2024 年 10 月 3 日）
+为银行管理与再融资风险相关的信用风险提供指导。
+
+[**信贷管理：关于审慎的商业房地产贷款安排和重组的最终跨机构政策声明**](https://www.occ.gov/news-issuances/bulletins/2023/bulletin-2023-23.html)（OCC 2023-23，2023 年 6 月 29 日），[**该政策声明**](https://www.federalregister.gov/documents/2023/07/06/2023-14247/policy-statement-on-prudent-commercial-real-estate-loan-accommodations-and-workouts)
+以现有的监管指导为基础，要求金融机构在金融压力时期与信誉良好的借款人进行审慎和建设性的合作，更新了现有的关于商业房地产贷款重组的跨机构监管指导，并增加了一个关于短期贷款安排的章节。
+
+[**房地产贷款：关于商业房地产贷款审慎风险管理的机构间声明**](https://www.occ.gov/news-issuances/bulletins/2015/bulletin-2015-51.html) （OCC 2015-51，2015 年 12 月 18 日）
+该机构间声明提醒金融机构注意现有的监管指导，即在经济周期中对商业房地产贷款活动进行审慎的风险管理实践。
+
+[**商业房地产贷款集中度，健全的风险管理实践：机构间商业房地产集中度风险管理指南**](https://www.occ.gov/news-issuances/bulletins/2006/bulletin-2006-46.html)（OCC 2006-46，2006 年 12 月），**[指南](https://www.occ.gov/news-issuances/federal-register/2006/71fr74580.pdf)**（联邦公报，2006 年 12 月 12 日）
+描述了机构在面临商业房地产集中度风险时应采取的健全的风险管理实践。
+
+**[贷款利息资本化指南](https://www.occ.gov/static/news-issuances/bulletins/pre-1994/examining-circulars/ec-1985-229.pdf)**（EC 229，1985 年 5 月）
+描述了 OCC 关于贷款利息资本化会计处理的政策。
+
+[**常见问题解答：住宅用地开发贷款**](https://www.occ.gov/news-issuances/bulletins/2005/bulletin-2005-32.html)（OCC 2005-32，2005 年 9 月），[**常见问题**](https://www.occ.gov/news-issuances/bulletins/2005/2005-32a.pdf)
+解答涉及住宅用地开发、土地和采用循环信贷额度结构的贷款的评估要求。
+
+[**房地产贷款政策跨部门指南**](https://www.occ.gov/news-issuances/bulletins/1999/bulletin-1999-38.html)（OCC 1999-38，1999 年 10 月），**[跨部门指导意见](https://www.occ.gov/news-issuances/bulletins/1999/bulletin-1999-38a.pdf)**
+涉及高贷款价值比住宅房地产贷款的处理
+
+[**常见问题解答：住宅用地开发贷款**](https://www.occ.gov/news-issuances/bulletins/2005/bulletin-2005-32.html)（OCC 2005-32，2005 年 9 月），**[本常见问题解答](https://www.occ.gov/news-issuances/bulletins/2005/2005-32a.pdf)**
+阐述了住宅用地开发、土地以及采用循环信贷额度结构的贷款的评估要求。
+
+
+
+## 没有土地的CRE贷款
+
+在美国商业地产法律中，通过 **土地租赁合同（Ground Lease）** 进行的开发非常普遍。当承租人（Tenant/Lessee）因未按时支付租金导致合同被地主（Landlord/Lessor）终止时，地面建筑物的归属、银行的权益以及地主的处置权，主要取决于 **合同条款的约定** 以及 **融资架构（是“从属”还是“非从属”融资）**。
+
+根据美国各州法律及商业惯例，核心处理规则如下：
+
+### 1. 地面建筑物归谁所有？
+
+- **合同终止后：通常归地主所有（Reversion Rights）**。
+
+  在土地租赁存续期间，地面建筑的法律产权或使用权通常归承租人所有。但一旦合同因承租人违约（如欠租）而合法终止，**建筑物及其附着物通常自动归地主所有**（除非合同另有规定要求承租人拆除）。
+
+- **地主无需补偿承租人**：地主收回土地及建筑属于行使合同违约救济权，通常**不需要**为建筑物向承租人支付额外补偿。
+
+### 2. 为地面建筑物融资的银行是否有权益？
+
+银行是否有权益、能否保住抵押物，取决于当初**融资的类型**以及银行是否签署了**保护协议（Tripartite / Lender Protection Agreement）**：
+
+#### 情况 A：承租人抵押融资（Leasehold Mortgage，非从属地面租赁）
+
+这是最常见的情况。银行的抵押物仅为**承租人的“租赁权”（Leasehold Estate）和建筑使用权**，而地主并未将土地所有权抵押给银行。
+
+- **原则上**：如果土地合同被地主终止，承租人的租赁权灭失，**银行的抵押物随之归零**。
+- **实践中的银行保护机制**：合格的商业银行在放贷前，必然会要求地主签署包含“银行保护条款”的协议。这些条款赋予银行以下权益：
+  1. **通知与代偿权（Notice & Right to Cure）**：地主在终止合同前，必须通知银行。**银行有权替承租人补齐欠租**，从而阻止地主终止合同，维护抵押物效力。
+  2. **签发新租赁合同的权利（New Lease Right）**：若合同仍被终止，银行通常有权要求地主按照原条款直接与银行（或银行指定的接管人）**签订一份新的土地租赁合同**。
+
+> **结论**：如果银行事先没有取得代偿权或签署保护协议，且未及时替承租人补足欠租，**银行对地面建筑物的抵押权益将随着租赁合同的终止而完全丧失**。
+
+#### 情况 B：地主配合了土地从属抵押（Subordinated Ground Lease）
+
+如果地主为了支持承租人融资，同意将土地产权（Fee Title）一并抵押给了银行：
+
+- 银行对整个地产（土地+建筑）拥有第一顺位抵押权。
+- 即使地主终止了与承租人的租赁合同，**银行的抵押权依然优先于地主的产权**，银行可以通过止赎（Foreclosure）拍卖整个地产来收回贷款。
+
+### 3. 地主有权利处置地面建筑物吗？
+
+- **有绝对的处置权**。
+- 在租赁合同合法终止、地主依据法律程序（Eviction/Summary Proceeding）完成收回占有权（Re-entry）后，地主即取得该地产（含建筑）的完全所有权。
+- 地主可以自由选择：**招揽新租户承租、自行使用、出租整个建筑，或者拆除/出售该建筑物**。  
+
+### 4. 处置地面建筑物的收入是否优先给承租人还银行贷款？
+
+**不需要。**  
+
+1. **对承租人**：合同因承租人欠租违约而终止，地主处置资产所得属于地主收回的财产权益及违约救济收入，**无需交由承租人，更没有义务帮承租人偿还其个人或公司的银行贷款**。
+2. **对银行**：
+   - 在非从属租赁（Leasehold Mortgage）下，银行对地主没有直接的追索权。地主出售/出租建筑的收益完全归地主所有，**不需要优先归还银行贷款**。银行只能转向承租人进行追偿（如追讨违约金或冻结承租人的其他资产）。
+   - **例外情况**：只有在银行行使了代偿权并接管了新租赁合同，或者属于土地从属抵押（Subordinated）的情况下，拍卖所得才会优先偿还银行。
+

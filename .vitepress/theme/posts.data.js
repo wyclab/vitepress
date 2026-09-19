@@ -10,7 +10,7 @@ function formatDate(d) {
 }
 
 export default createContentLoader('articles/**/*.md', {
-  excerpts: true,
+  excerpt: true, // 注意：官方选项名是 excerpt（不是 excerpts），开启后 p.excerpt 为首段渲染的 HTML
   transform(raw) {
     return raw
       .filter((p) => !p.url.endsWith('/')) // 过滤掉分类 index 页

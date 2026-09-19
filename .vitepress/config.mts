@@ -1,7 +1,29 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vitepress'
+import type { Plugin } from 'vite'
 import { buildTopicSidebar, type CategoryDef } from './autoSidebar.ts'
+
+// ---------- dev 下文章增删时自动重启，刷新自动侧边栏 ----------
+// 侧边栏是 config 加载时扫描目录生成的静态配置，dev 中新增/删除 md 不会自动重算。
+// 这里监听 articles/ 下 md 文件的创建与删除，防抖后重启 dev server。
+function sidebarAutoRestart(): Plugin {
+  let timer: NodeJS.Timeout | undefined
+  return {
+    name: 'sidebar-auto-restart',
+    apply: 'serve',
+    configureServer(server) {
+      const refresh = (file: string) => {
+        if (!file.replace(/\\/g, '/').includes('/articles/') || !file.endsWith('.md')) return
+        if (file.includes('/node_modules/') || file.endsWith('index.md')) return
+        clearTimeout(timer)
+        timer = setTimeout(() => server.restart(), 500)
+      }
+      server.watcher.on('add', refresh)
+      server.watcher.on('unlink', refresh)
+    },
+  }
+}
 
 // ---------- 专题配置（每个专题一个目录，侧边栏按目录自动生成） ----------
 interface TopicDef {
@@ -18,6 +40,7 @@ const topics: TopicDef[] = [
       { dir: 'macro', label: '宏观观察' },
       { dir: 'gov', label: '政府观察' },
       { dir: 'firm', label: '企业观察' },
+      { dir: 'law', label: '法治观察' },
     ],
   },
   {
@@ -56,6 +79,16 @@ const topics: TopicDef[] = [
     categories: [
       { dir: 'basics', label: '基础知识' },
       { dir: 'practice', label: '实战记录' },
+    ],
+  },
+  {
+    dir: 'notes',
+    label: '随笔',
+    categories: [
+      { dir: 'diary', label: '日记' },
+      { dir: 'books', label: '读书笔记' },
+      { dir: 'journal', label: '游记' },
+      { dir: 'website', label: '建站笔记' },
     ],
   },
 ]
@@ -203,7 +236,15 @@ export default defineConfig({
   appearance: true,
   description: siteDescription,
   ignoreDeadLinks: true,
-  head: [['link', { rel: 'alternate', type: 'application/rss+xml', title: siteTitle, href: '/feed.xml' }]],
+  head: [
+    // Favicon（public/favicon/ 目录）
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon/favicon-32x32.png' }],
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon/android-chrome-192x192.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' }],
+    // RSS
+    ['link', { rel: 'alternate', type: 'application/rss+xml', title: siteTitle, href: '/feed.xml' }],
+  ],
 
   themeConfig: {
     nav: [
@@ -211,12 +252,7 @@ export default defineConfig({
       { text: '文章', link: '/pages/posts' },
       {
         text: '专题',
-        items: [
-          ...topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
-          { text: '前端', link: '/articles/frontEnd/' },
-          { text: '随笔', link: '/articles/note/' },
-          { text: '项目', link: '/articles/myProjects/' },
-        ],
+        items: topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
       },
       { text: '标签', link: '/pages/tags' },
       { text: '友链', link: '/pages/friend' },
@@ -226,31 +262,6 @@ export default defineConfig({
     sidebar: {
       // 各专题：自动侧边栏（新增 md 文件后自动更新）
       ...buildTopicsSidebar(),
-
-      // 其他文章目录：手动维护
-      '/articles/': [
-        {
-          text: '前端',
-          link: '/articles/frontEnd/',
-          items: [
-            { text: '从购买域名到更换域名', link: '/articles/frontEnd/changed-the-domain' },
-            { text: '给 VitePress 博客添加评论', link: '/articles/frontEnd/comments-to-vitepress' },
-          ],
-        },
-        {
-          text: '随笔',
-          link: '/articles/note/',
-          items: [
-            { text: 'Hermes 引擎与小龙虾', link: '/articles/note/hermes-vs-xiaolongxia' },
-            { text: 'Vibe Coding 的未来与风险', link: '/articles/note/vibe-coding-future-and-risk' },
-          ],
-        },
-        {
-          text: '项目',
-          link: '/articles/myProjects/',
-          items: [{ text: 'Codex 注册项目分析', link: '/articles/myProjects/codex-register-project-analysis' }],
-        },
-      ],
     },
 
     search: {
@@ -275,6 +286,10 @@ export default defineConfig({
     darkModeSwitchLabel: '主题',
     lightModeSwitchTitle: '切换到亮色模式',
     darkModeSwitchTitle: '切换到暗色模式',
+  },
+
+  vite: {
+    plugins: [sidebarAutoRestart()],
   },
 
   buildEnd(siteConfig: any) {
