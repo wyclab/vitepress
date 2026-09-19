@@ -174,19 +174,32 @@ function walkMarkdown(dir: string, out: string[] = []): string[] {
   return out
 }
 
+// XML 文本节点转义，避免标题/描述中的 & < > 破坏 feed 结构
+function escapeXml(value: any): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;')
+}
+
 function generateRss(siteConfig: any) {
   const srcDir = siteConfig.srcDir
   const articlesDir = path.join(srcDir, 'articles')
+  // cleanUrls 关闭时构建产物是 xxx.html，feed 里的链接必须与产物一致，否则会 404
+  const cleanUrls = !!siteConfig.cleanUrls
   const posts = walkMarkdown(articlesDir)
     .filter((f) => !path.basename(f).startsWith('index.'))
     .map((f) => {
       const content = fs.readFileSync(f, 'utf-8')
       const fm = parseFrontmatter(content)
+      const rel = path.relative(srcDir, f).replace(/\\/g, '/').replace(/\.md$/, '')
       return {
         title: fm.title || path.basename(f, '.md'),
         description: fm.description || '',
         date: fm.date ? new Date(fm.date) : new Date(),
-        url: path.relative(srcDir, f).replace(/\\/g, '/').replace(/\.md$/, ''),
+        url: cleanUrls ? rel : `${rel}.html`,
         tags: Array.isArray(fm.tags) ? fm.tags : [],
       }
     })
@@ -194,18 +207,19 @@ function generateRss(siteConfig: any) {
 
   const site = siteConfig.site
   const base = String(site.base || '/')
-  const origin = String(site.origin || 'https://example.com')
+  // 站点域名来自 siteOrigin 常量（VitePress 的 siteConfig 里没有 origin 字段）
+  const origin = siteOrigin.replace(/\/+$/, '')
   const siteUrl = origin + base
 
   const items = posts
     .map(
       (p) => `    <item>
-      <title>${p.title}</title>
+      <title>${escapeXml(p.title)}</title>
       <link>${siteUrl}${p.url}</link>
       <guid isPermaLink="true">${siteUrl}${p.url}</guid>
-      <description>${p.description.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</description>
+      <description>${escapeXml(p.description)}</description>
       <pubDate>${p.date.toUTCString()}</pubDate>
-${p.tags.map((t: string) => `      <category>${t}</category>`).join('\n')}
+${p.tags.map((t: string) => `      <category>${escapeXml(t)}</category>`).join('\n')}
     </item>`
     )
     .join('\n')
@@ -213,10 +227,11 @@ ${p.tags.map((t: string) => `      <category>${t}</category>`).join('\n')}
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${site.title}</title>
+    <title>${escapeXml(site.title)}</title>
     <link>${siteUrl}</link>
-    <description>${site.description}</description>
+    <description>${escapeXml(site.description)}</description>
     <language>zh-CN</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}feed.xml" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
@@ -228,6 +243,8 @@ ${items}
 // ---------- 站点信息（按需修改） ----------
 const siteTitle = '无用处'
 const siteDescription = '无用处实验室，看似无用，实则真的无用。'
+// 站点域名：RSS / sitemap 等绝对链接的唯一来源，换域名只改这一处
+const siteOrigin = 'https://wyclab.com'
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -236,6 +253,8 @@ export default defineConfig({
   appearance: true,
   description: siteDescription,
   ignoreDeadLinks: true,
+  // 自动生成 sitemap.xml，与 RSS 共用同一域名
+  sitemap: { hostname: siteOrigin },
   head: [
     // Favicon（public/ 根目录 + public/favicon/ 目录）
     // 注意：iPad/iPhone Safari 只会请求站点根路径的 /apple-touch-icon.png 和 /favicon.ico，

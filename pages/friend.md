@@ -2,16 +2,16 @@
 title: 链接
 layout: page
 friendPage:
-  desc: 欢迎交换友链：只收录稳定更新、内容原创、无恶意广告的站点。
-  defaultAvatar: https://github.com/wyclab.png
+  desc: 欢迎交换友链：只收录稳定更新、内容原创、无恶意广告的站点。联系我admin@wyclab.com
+  defaultAvatar: https://wyclab.com/favicon/android-chrome-512x512.png
 friendTemplate:
   name: wyclab
   description: 前端开发工程师 | 技术博主
   url: https://wyclab.com
   friendLink: https://wyclab.com/pages/friend
-  avatar: https://github.com/wyclab.png
-  logo: https://github.com/wyclab.png
-  email: you@example.com
+  avatar: https://wyclab.com/favicon/android-chrome-512x512.png
+  logo: https://wyclab.com/favicon/android-chrome-512x512.png
+  email: admin@wyclab.com
 friendFormat:
   - label: 站点名称
     value: wyclab
@@ -32,55 +32,11 @@ friends:
     desc: 渐进式 JavaScript 框架
     avatar: https://cn.vuejs.org/logo.svg
     tags: [前端, 框架]
-  - name: 索玛
-    url: https://suo.ma
-    desc: 多情剑客无情剑
-    avatar: https://suo.ma/upload/favicon.ico
-    tags: [好朋友]
-  - name: 鲁鲁和非人类
-    url: https://www.myhelen.cn
-    desc: 个人博客，小道，开源，AI，人工智能，乱语，免费分享
-    avatar: https://www.myhelen.cn/img/me.png
-    tags: [好朋友]
-  - name: Snowykami
-    url: https://sfkm.me/
-    desc: Seul un adieu fleurira. 诀别如繁花盛开。
-    avatar: https://q.qlogo.cn/g?b=qq&nk=2751454815&s=640
-    tags: [好朋友]
-  - name: 皮皮社
-    url: https://www.pipishe.com
-    desc: 记录生活中的点点滴滴
-    avatar: https://www.pipishe.com/logo.png
-    tags: [好朋友]
-  - name: 蒙需
-    url: https://jiangcl.com/
-    desc: 木有
-    avatar: /logo.png
-    tags: [好朋友]
-  - name: 梦里生华
-    url: https://zhangshuaibi29.cn
-    desc: 看见我你会变帅
-    avatar: https://zhangshuaibi29.cn/wp-content/uploads/2025/11/IMG_20251111_175918.jpg
-    tags: [好朋友]
-  - name: 83小驿站
-    url: https://888333.xyz/
-    desc: 木有
-    avatar: https://888333.xyz/usr/themes/HarmonyHues/assets/images/logo.webp
-    tags: [好朋友]
-  - name: CarmJos
-    url: https://www.carm.cc/
-    desc: 热爱生活中的点滴美好，追寻万物中的无尽创造。
-    avatar: https://github.com/CarmJos.png
-    tags: [好朋友]
-  - name: 谢鸿威博客
-    url: https://www.xiehongwei.cn/
-    desc: 记录生活,留住美好,喜欢诗和远方。
-    avatar: https://www.xiehongwei.cn/usr/uploads/2025/11/3239670071.png
-    tags: [好朋友]
-  - name: 懋和道人
-    url: https://blog.dao.js.cn/
+ 
+  - name: 个站商店
+    url: https://storeweb.cn/
     desc: 李懋和，俗名李栋梁。书法、国画爱好者，互联网安全与前端建设者。
-    avatar: https://cn.cravatar.com/avatar/37d41e2b550633a30f5d41de61c1aa92?s=400&r=G&d=mp&ver=1754413756
+    avatar: https://upload.storeweb.cn/image/logo.png
     tags: [好朋友]
   - name: 博友圈
     url: https://www.boyouquan.com/home/
