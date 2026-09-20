@@ -1,8 +1,14 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useData } from 'vitepress'
+
+const { frontmatter } = useData()
 
 const progress = ref(0)
 const visible = ref(false)
+
+// 首页不显示返回顶部按钮
+const isHome = computed(() => frontmatter.value.layout === 'home')
 
 // 环形进度条周长（r = 22）
 const R = 22
@@ -47,7 +53,7 @@ onBeforeUnmount(() => {
 <template>
   <Transition name="btt">
     <button
-      v-if="visible"
+      v-if="visible && !isHome"
       class="back-to-top"
       type="button"
       :title="`回到顶部（已阅读 ${progress}%）`"

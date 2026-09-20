@@ -414,14 +414,6 @@ html {
   color: var(--blog-title);
 }
 
-.view-all {
-  font-weight: 500;
-  color: var(--vp-c-brand-1);
-  text-decoration: none;
-}
-
-.view-all:hover { color: var(--vp-c-brand-2); }
-
 .latest-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -503,6 +495,47 @@ html {
   background: var(--vp-c-brand-1);
   color: #fff;
   border-color: var(--vp-c-brand-1);
+}
+
+/* ---- 底部查看全部（手机滑到底部即可点击） ---- */
+.latest-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+.latest-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 40px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+  background: var(--blog-card-bg);
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.28s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.latest-more-link:hover {
+  color: #fff;
+  background: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.28);
+  transform: translateY(-2px);
+}
+
+.latest-more-arrow {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.28s ease;
+}
+
+.latest-more-link:hover .latest-more-arrow {
+  transform: translateX(3px);
 }
 
 /* ============ 文章列表页（仿参考站：按年份分组） ============ */

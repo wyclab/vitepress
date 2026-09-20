@@ -270,7 +270,6 @@ const latest = computed(() => posts.slice(0, 8))
       <section class="latest-articles">
         <div class="latest-head">
           <h2>最新文章</h2>
-          <a class="view-all" :href="withBase('/pages/posts/')">查看全部 →</a>
         </div>
         <div class="latest-grid">
           <a v-for="p in latest" :key="p.url" class="article-card card" :href="withBase(p.url)">
@@ -280,6 +279,16 @@ const latest = computed(() => posts.slice(0, 8))
             <div class="article-card-tags">
               <span class="article-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
             </div>
+          </a>
+        </div>
+
+        <!-- 底部查看全部：手机滑到底部即可点击 -->
+        <div class="latest-more">
+          <a class="latest-more-link" :href="withBase('/pages/posts/')">
+            查看全部文章
+            <svg class="latest-more-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </a>
         </div>
       </section>
