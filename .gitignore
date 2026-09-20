@@ -1,0 +1,27 @@
+# ---- 依赖 ----
+node_modules/
+
+# ---- VitePress 构建产物与缓存 ----
+.vitepress/dist/
+.vitepress/cache/
+.vitepress/temp/
+
+# ---- 系统文件 ----
+.DS_Store
+
+# ---- 日志 ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- 编辑器 / IDE ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ---- WorkBuddy 工作目录（助手记忆/日志，非站点内容） ----
+.workbuddy/

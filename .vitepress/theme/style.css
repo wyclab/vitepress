@@ -285,13 +285,29 @@ html {
   flex: 1;
   overflow: hidden;
   min-width: 0;
+  /* 横向手势自己处理，纵向滚动仍交给页面 */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recommend-list.is-dragging {
+  cursor: grabbing;
 }
 
 .recommend-track {
   display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* 跟手期间必须去掉过渡，否则会有拖不动的粘滞感 */
+.recommend-list.is-dragging .recommend-track {
+  transition: none;
 }
 
 .recommend-page {
@@ -371,6 +387,14 @@ html {
 .recommend-meta .cat {
   color: var(--vp-c-brand-1);
   font-weight: 500;
+}
+
+/* 手机：圆点加大便于点按，触屏不需要抓取光标 */
+@media (max-width: 768px) {
+  .recommend-list { cursor: default; }
+  .recommend-indicators { gap: 9px; }
+  .indicator-dot { width: 9px; height: 9px; }
+  .indicator-dot.active { width: 22px; }
 }
 
 /* ============ 最新文章 ============ */
