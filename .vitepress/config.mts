@@ -300,10 +300,10 @@ export default defineConfig({
       },
     },
 
-    outline: { level: [2, 3], label: '页面导航' },
+    outline: { level: [2, 3], label: '本文目录' },
     docFooter: { prev: '上一篇', next: '下一篇' },
     returnToTopLabel: '回到顶部',
-    sidebarMenuLabel: '目录',
+    sidebarMenuLabel: '专题',
     darkModeSwitchLabel: '主题',
     lightModeSwitchTitle: '切换到亮色模式',
     darkModeSwitchTitle: '切换到暗色模式',

@@ -4,6 +4,7 @@ import { useData } from 'vitepress'
 import HomeLayout from './components/HomeLayout.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import ArticleHeader from './components/ArticleHeader.vue'
+import BackToTop from './components/BackToTop.vue'
 
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
@@ -21,4 +22,5 @@ const { frontmatter } = useData()
       <ArticleHeader />
     </template>
   </Layout>
+  <BackToTop />
 </template>
