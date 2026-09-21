@@ -6,7 +6,7 @@ friendPage:
   defaultAvatar: https://wyclab.com/favicon/android-chrome-512x512.png
 friendTemplate:
   name: wyclab
-  description: 前端开发工程师 | 技术博主
+  description: 无用处实验室
   url: https://wyclab.com
   friendLink: https://wyclab.com/pages/friend
   avatar: https://wyclab.com/favicon/android-chrome-512x512.png
@@ -27,17 +27,11 @@ friends:
     desc: VitePress 官方文档
     avatar: https://vitepress.dev/vitepress-logo-mini.svg
     tags: [文档, 静态站点]
-  - name: Vue.js
-    url: https://cn.vuejs.org/
-    desc: 渐进式 JavaScript 框架
-    avatar: https://cn.vuejs.org/logo.svg
-    tags: [前端, 框架]
- 
   - name: 个站商店
     url: https://storeweb.cn/
-    desc: 李懋和，俗名李栋梁。书法、国画爱好者，互联网安全与前端建设者。
+    desc:  一个精致的，带社交元素的个人网站发布平台，博客收录网站
     avatar: https://upload.storeweb.cn/image/logo.png
-    tags: [好朋友]
+    tags: [聚合站]
   - name: 博友圈
     url: https://www.boyouquan.com/home/
     desc: 让我们跨越山海彼此相连，一起用文字打败时间！
