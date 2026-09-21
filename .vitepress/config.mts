@@ -85,7 +85,7 @@ const topics: TopicDef[] = [
     dir: 'notes',
     label: '随笔',
     categories: [
-      { dir: 'diary', label: '日记' },
+      { dir: 'diary', label: '日记', groupByYear: true },
       { dir: 'books', label: '读书笔记' },
       { dir: 'journal', label: '游记' },
       { dir: 'website', label: '建站笔记' },
