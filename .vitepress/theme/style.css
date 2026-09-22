@@ -15,10 +15,9 @@
   --blog-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
   --blog-shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
 
-  /* ============ 顶部导航栏：玻璃遮罩（参考 blog.msglbo.cn） ============
-     半透明背景 + backdrop blur，滚动时页面内容从导航栏后透出模糊效果；
-     首页顶部保持全透明（--vp-nav-home-bg-color 默认 transparent），
-     离开顶部或进入文章页后自动变为毛玻璃。 */
+  /* ============ 顶部导航栏（仿 deepseek.com） ============
+     顶部未滚动时全透明；下滑后（Layout.vue 挂 nav-floating）收缩为
+     悬浮圆角毛玻璃区块（见下方「DeepSeek 风格悬浮圆角」一节）。 */
   --vp-nav-bg-color: rgba(245, 246, 248, 0.72);
   --vp-nav-backdrop-filter: blur(12px) saturate(1.6);
   --vp-nav-divider-color: rgba(0, 0, 0, 0.06);
@@ -27,6 +26,13 @@
   --mnp-panel-bg: rgba(255, 255, 255, 0.55);
   --mnp-panel-hover: rgba(255, 255, 255, 0.85);
   --mnp-drawer-bg: rgba(255, 255, 255, 0.9);
+
+  /* 悬浮圆角导航（仿 deepseek.com）：滚动后收缩为圆角浮动区块 */
+  --nav-pill-radius: 16px;
+  --nav-pill-inset-x: 12px;
+  --nav-pill-inset-y: 8px;
+  --nav-pill-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+  --nav-pill-border: rgba(15, 23, 42, 0.06);
 }
 
 .dark {
@@ -48,6 +54,89 @@
   --mnp-panel-bg: rgba(27, 27, 31, 0.6);
   --mnp-panel-hover: rgba(27, 27, 31, 0.85);
   --mnp-drawer-bg: rgba(27, 27, 31, 0.92);
+
+  /* 悬浮圆角导航（暗色） */
+  --nav-pill-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+  --nav-pill-border: rgba(255, 255, 255, 0.1);
+}
+
+/* ============ 顶部导航：DeepSeek 风格悬浮圆角 ============ */
+
+/* 1) 所有屏幕尺寸都固定导航。VitePress 默认 <60rem 是 relative（随页面滚走），
+   改成 fixed 后手机端也能实现「下滑后浮现圆角区块」。 */
+.VPNav {
+  position: fixed !important;
+}
+
+/* 固定后内容需要补出导航高度（桌面端默认已补，这里手机端统一补上） */
+.VPContent {
+  padding-top: var(--vp-nav-height) !important;
+}
+
+/* 2) 去掉导航底部分隔线（悬浮区块自带边框，无需再画线） */
+.VPNavBar .divider {
+  display: none !important;
+}
+
+/* 3) 导航背景的过渡：让「全宽 ↔ 圆角悬浮块」平滑形变 */
+.VPNav .VPNavBar::before {
+  transition:
+    top 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    bottom 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
+    backdrop-filter 0.3s ease !important;
+}
+
+/* 4) 未滚动（顶部）：透明全宽，无圆角无阴影无边框 */
+html:not(.nav-floating) .VPNav .VPNavBar::before {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* 5) 滚动后：收缩为居中的圆角浮动区块 */
+html.nav-floating .VPNav .VPNavBar::before {
+  top: var(--nav-pill-inset-y) !important;
+  right: var(--nav-pill-inset-x) !important;
+  bottom: var(--nav-pill-inset-y) !important;
+  left: var(--nav-pill-inset-x) !important;
+  border-radius: var(--nav-pill-radius) !important;
+  box-shadow: var(--nav-pill-shadow) !important;
+  border: 1px solid var(--nav-pill-border) !important;
+  background-color: var(--vp-nav-bg-color) !important;
+  backdrop-filter: var(--vp-nav-backdrop-filter) !important;
+}
+
+/* 打开移动端菜单时恢复全宽玻璃，避免悬浮块与全屏菜单错位 */
+html.nav-floating .VPNav .VPNavBar.screen-open::before {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* 桌面端：悬浮块左右留白略大，视觉更舒展 */
+@media (min-width: 60rem) {
+  :root {
+    --nav-pill-inset-x: 20px;
+    --nav-pill-inset-y: 10px;
+  }
+}
+
+/* 6) 手机端文章页：隐藏「专题 + 本文目录」的本地导航条。
+      右下角悬浮按钮已替代此功能，顶部只保留「标题 + 搜索 + 导航」。 */
+@media (max-width: 59.99rem) {
+  .VPLocalNav {
+    display: none !important;
+  }
 }
 
 /* ============ 首页容器微调 ============ */
