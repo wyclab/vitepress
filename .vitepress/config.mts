@@ -4,6 +4,30 @@ import { defineConfig } from 'vitepress'
 import type { Plugin } from 'vite'
 import { buildTopicSidebar, type CategoryDef } from './autoSidebar.ts'
 
+// ---------- 中文搜索分词 ----------
+// VitePress 本地搜索（minisearch）默认按空格/标点切词，中文整段会被当成一个 token，
+// 且默认无 prefix/fuzzy，导致「正文中间的词搜不到」。
+// 这里自定义 tokenize：中文按相邻两字切 bigram，英文/数字保留完整词，配合 prefix/fuzzy 实现中文可搜索。
+function chineseFriendlyTokenize(text: string): string[] {
+  const tokens: string[] = []
+  // 切成「连续中文」或「连续英文/数字」两块
+  const segments = text.match(/[\u4e00-\u9fff]+|[A-Za-z0-9]+/g) ?? []
+  for (const seg of segments) {
+    if (/[\u4e00-\u9fff]/.test(seg)) {
+      // 中文：bigram（相邻两字一组）；单字则保留单字
+      if (seg.length === 1) {
+        tokens.push(seg)
+      } else {
+        for (let i = 0; i < seg.length - 1; i++) tokens.push(seg.slice(i, i + 2))
+      }
+    } else {
+      // 英文/数字：小写后作为完整词
+      tokens.push(seg.toLowerCase())
+    }
+  }
+  return tokens
+}
+
 // ---------- dev 下文章增删时自动重启，刷新自动侧边栏 ----------
 // 侧边栏是 config 加载时扫描目录生成的静态配置，dev 中新增/删除 md 不会自动重算。
 // 这里监听 articles/ 下 md 文件的创建与删除，防抖后重启 dev server。
@@ -288,6 +312,16 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        miniSearch: {
+          options: {
+            tokenize: chineseFriendlyTokenize,
+          },
+          searchOptions: {
+            prefix: true,
+            fuzzy: 0.2,
+            boost: { title: 4, text: 2, titles: 1 },
+          },
+        },
         translations: {
           button: { buttonText: '搜索文章', buttonAriaLabel: '搜索文章' },
           modal: {

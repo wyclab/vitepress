@@ -5,6 +5,7 @@ import HomeLayout from './components/HomeLayout.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import ArticleHeader from './components/ArticleHeader.vue'
 import BackToTop from './components/BackToTop.vue'
+import MobileNav from './components/MobileNav.vue'
 
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
@@ -23,4 +24,5 @@ const { frontmatter } = useData()
     </template>
   </Layout>
   <BackToTop />
+  <MobileNav />
 </template>
