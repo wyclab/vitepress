@@ -172,12 +172,10 @@ onBeforeUnmount(() => {
   transform: translateY(12px);
 }
 
+/* 移动端：回到顶部已并入 MobileNav 悬浮面板（三个图标按钮统一风格），此处隐藏 */
 @media (max-width: 768px) {
   .back-to-top {
-    right: 16px;
-    bottom: 20px;
-    width: 46px;
-    height: 46px;
+    display: none;
   }
 }
 </style>

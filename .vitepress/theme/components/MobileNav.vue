@@ -1,6 +1,6 @@
 <script setup>
 // 移动端悬浮导航面板：参照 log.wyclab.com 的底部悬浮按钮组。
-// 两个按钮：展开专题导航（侧边栏）、展开本文目录（TOC）。
+// 三个按钮：展开专题导航（侧边栏）、展开本文目录（TOC）、回到顶部。
 // 首页（layout === 'home'）不显示；仅在有侧边栏的页面（/articles/...）显示。
 
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
@@ -50,6 +50,10 @@ function toggleToc() {
 }
 function closeToc() {
   tocOpen.value = false
+}
+
+function backToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // 打开目录抽屉时锁定页面滚动，关闭/卸载时释放
@@ -133,6 +137,18 @@ watch(() => route.path, closeToc)
             <path d="M224 40v176a8 8 0 0 1-16 0V40a8 8 0 0 1 16 0m-32 24v40a16 16 0 0 1-16 16H80a16 16 0 0 1-16-16V64a16 16 0 0 1 16-16h96a16 16 0 0 1 16 16m-16 0H80v40h96Zm16 88v40a16 16 0 0 1-16 16H40a16 16 0 0 1-16-16v-40a16 16 0 0 1 16-16h136a16 16 0 0 1 16 16m-16 0H40v40h136Z" />
           </svg>
         </button>
+
+        <button
+          type="button"
+          class="mnp-btn"
+          aria-label="回到顶部"
+          title="回到顶部"
+          @click="backToTop"
+        >
+          <svg class="mnp-icon" viewBox="0 0 256 256" aria-hidden="true">
+            <path d="M205.66 117.66a8 8 0 0 1-11.32 0L136 59.31V216a8 8 0 0 1-16 0V59.31l-58.34 58.35a8 8 0 0 1-11.32-11.32l72-72a8 8 0 0 1 11.32 0l72 72a8 8 0 0 1 0 11.32Z" />
+          </svg>
+        </button>
       </div>
     </div>
   </ClientOnly>
@@ -143,8 +159,7 @@ watch(() => route.path, closeToc)
 .mnp-panel {
   position: fixed;
   right: 16px;
-  /* 位于已有「返回顶部」按钮（bottom 20px + 高 46px）上方，留 10px 间距 */
-  bottom: 76px;
+  bottom: 20px;
   z-index: 70;
   display: flex;
   flex-direction: column;
