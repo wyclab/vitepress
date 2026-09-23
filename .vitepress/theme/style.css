@@ -31,6 +31,10 @@
   --nav-pill-radius: 16px;
   --nav-pill-inset-x: 12px;
   --nav-pill-inset-y: 8px;
+  /* 滚动后收缩的目标宽度（仅宽屏生效；窄屏视口不足时自动回退到接近全宽） */
+  --nav-pill-max-width: 1000px;
+  /* 悬浮块内边距：内容（标题/菜单）与区块左右边框之间留白，避免贴边 */
+  --nav-pill-content-pad: 20px;
   --nav-pill-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
   --nav-pill-border: rgba(15, 23, 42, 0.06);
 }
@@ -91,20 +95,27 @@
     backdrop-filter 0.3s ease !important;
 }
 
-/* 4) 未滚动（顶部）：透明全宽，无圆角无阴影无边框 */
+/* 4) 未滚动（顶部）：透明全宽，无圆角无阴影无边框。
+      显式写全 0 覆盖 doc 页的 --vp-nav-col-offset，保证下滑收缩时左右对称。 */
 html:not(.nav-floating) .VPNav .VPNavBar::before {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
   background-color: transparent !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
   border: none !important;
 }
 
-/* 5) 滚动后：收缩为居中的圆角浮动区块 */
+/* 5) 滚动后：收缩为居中的圆角浮动区块。
+      left/right 用 max(inset, 50% - max-width/2) 实现：宽屏时居中收窄到 max-width，
+      窄屏（视口 < max-width）自动回退到 inset 边距、接近全宽，过渡平滑。 */
 html.nav-floating .VPNav .VPNavBar::before {
   top: var(--nav-pill-inset-y) !important;
-  right: var(--nav-pill-inset-x) !important;
+  right: max(var(--nav-pill-inset-x), calc(50% - var(--nav-pill-max-width) / 2)) !important;
   bottom: var(--nav-pill-inset-y) !important;
-  left: var(--nav-pill-inset-x) !important;
+  left: max(var(--nav-pill-inset-x), calc(50% - var(--nav-pill-max-width) / 2)) !important;
   border-radius: var(--nav-pill-radius) !important;
   box-shadow: var(--nav-pill-shadow) !important;
   border: 1px solid var(--nav-pill-border) !important;
@@ -121,6 +132,19 @@ html.nav-floating .VPNav .VPNavBar.screen-open::before {
   border-radius: 0 !important;
   box-shadow: none !important;
   border: none !important;
+}
+
+/* 5.5) 内容容器跟随背景块一起收窄：标题与菜单同步向中间聚拢，动画才完整。
+      仅桌面端收窄；移动端背景块已接近全宽，内容无需移动。 */
+.VPNav .VPNavBar .wrapper .container {
+  transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 60rem) {
+  html.nav-floating .VPNav .VPNavBar .wrapper .container {
+    /* 内容容器比背景块窄 2×content-pad，居中后标题/菜单与区块边框之间留白 */
+    max-width: calc(var(--nav-pill-max-width) - 2 * var(--nav-pill-content-pad)) !important;
+  }
 }
 
 /* 桌面端：悬浮块左右留白略大，视觉更舒展 */
