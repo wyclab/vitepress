@@ -7,6 +7,7 @@ import SiteFooter from './components/SiteFooter.vue'
 import ArticleHeader from './components/ArticleHeader.vue'
 import BackToTop from './components/BackToTop.vue'
 import MobileNav from './components/MobileNav.vue'
+import TwikooComment from './components/TwikooComment.vue'
 
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
@@ -33,6 +34,12 @@ onBeforeUnmount(() => window.removeEventListener('scroll', syncNavState))
     </template>
     <template #doc-before>
       <ArticleHeader />
+    </template>
+    <template #doc-after>
+      <TwikooComment />
+    </template>
+    <template #page-bottom>
+      <TwikooComment />
     </template>
   </Layout>
   <BackToTop />
