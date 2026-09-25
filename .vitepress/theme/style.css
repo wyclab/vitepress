@@ -1054,6 +1054,17 @@ html {
   padding: 32px 24px 64px;
 }
 
+/* 友链页（layout: page）评论区：page-bottom 槽在内容容器之外，默认全宽，
+   这里与 .friend-page 保持同宽居中、同样的左右内边距 */
+.VPPage > .twikoo-comment {
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
 /* 顶部卡片 */
 .friend-intro {
   overflow: hidden;
