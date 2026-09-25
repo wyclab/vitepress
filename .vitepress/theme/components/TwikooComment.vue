@@ -2,9 +2,16 @@
 // 模块级：twikoo 脚本全局只加载一次（SPA 切换页面时复用，避免重复注入）
 let twikooPromise = null
 
+// 注意：页面容器 id="twikoo" 会让浏览器把该 DOM 元素挂到 window.twikoo 上（命名元素访问），
+// 所以必须用 typeof init === 'function' 判断真正的 twikoo 库是否就绪，不能只用 truthy 判断
+function getTwikoo() {
+  return window.twikoo && typeof window.twikoo.init === 'function' ? window.twikoo : null
+}
+
 function loadTwikooScript() {
   if (typeof window === 'undefined') return Promise.reject(new Error('SSR'))
-  if (window.twikoo) return Promise.resolve(window.twikoo)
+  const existing = getTwikoo()
+  if (existing) return Promise.resolve(existing)
   if (!twikooPromise) {
     twikooPromise = new Promise((resolve, reject) => {
       const s = document.createElement('script')
@@ -13,7 +20,15 @@ function loadTwikooScript() {
       // 备选：https://cdn.jsdelivr.net/npm/twikoo@2.0.9/dist/twikoo.min.js
       s.src = 'https://registry.npmmirror.com/twikoo/2.0.9/files/dist/twikoo.min.js'
       s.crossOrigin = 'anonymous'
-      s.onload = () => resolve(window.twikoo)
+      s.onload = () => {
+        const twikoo = getTwikoo()
+        if (twikoo) {
+          resolve(twikoo)
+        } else {
+          twikooPromise = null
+          reject(new Error('twikoo 脚本加载后全局对象不可用'))
+        }
+      }
       s.onerror = () => {
         twikooPromise = null
         reject(new Error('twikoo 脚本加载失败'))
@@ -60,7 +75,7 @@ function init() {
         lang: 'zh-CN',
       })
     })
-    .catch(() => {})
+    .catch((err) => console.warn('[twikoo] 初始化失败:', err))
 }
 
 onMounted(() => {
