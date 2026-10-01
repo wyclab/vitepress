@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 import type { Plugin } from 'vite'
 import { buildTopicSidebar, type CategoryDef } from './autoSidebar.ts'
 import { collectDrafts, isDraftFile, isDraftFlag, walkMarkdown } from './draft.ts'
+import { getGitTimestamp } from './gitTimestamp.mjs'
 
 // ---------- 草稿（draft）不发布 ----------
 // 文章 frontmatter 里写 `draft: yes` 即视为草稿：不进入构建产物，
@@ -202,12 +203,16 @@ function injectArticleMeta(pageData: any, cfg: any) {
   }
   const words = countWords(raw)
 
-  // 更新时间优先级：frontmatter updated > frontmatter date > 文件修改时间
-  const fmUpdated = pageData.frontmatter?.updated || pageData.frontmatter?.date
-  const mtime = new Date(fs.statSync(abs).mtimeMs)
-  const updated = fmtDate(fmUpdated) || mtime.toISOString().slice(0, 10)
+  // 发布时间 = frontmatter.date（首次发布时间，用户手动维护）
+  const published = fmtDate(pageData.frontmatter?.date)
+
+  // 更新时间：自动记录，优先级为 frontmatter.updated（手动覆盖） > git 最后提交时间 > 文件修改时间
+  const fmUpdated = fmtDate(pageData.frontmatter?.updated)
+  const mtime = new Date(fs.statSync(abs).mtimeMs).toISOString().slice(0, 10)
+  const updated = fmUpdated || getGitTimestamp(abs) || mtime
 
   pageData.articleMeta = {
+    published,
     updated,
     words,
     minutes: Math.max(1, Math.round(words / 400)),

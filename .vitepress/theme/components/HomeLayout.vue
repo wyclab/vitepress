@@ -22,11 +22,17 @@ const tagCounts = computed(() => {
   return [...map.entries()].sort((a, b) => b[1] - a[1])
 })
 
-// ---------- 精选轮播 ----------
-const recommended = computed(() => posts.filter((p) => p.description).slice(0, 6))
+// ---------- 最近更新轮播 ----------
+// 按「更新时间」（git 最后提交时间）排序，轮播最近变化的文章
+const recentlyUpdated = computed(() =>
+  [...posts]
+    .filter((p) => p.description)
+    .sort((a, b) => (b.updatedTs || 0) - (a.updatedTs || 0))
+    .slice(0, 6),
+)
 const recPages = computed(() => {
   const pages = []
-  for (let i = 0; i < recommended.value.length; i += 2) pages.push(recommended.value.slice(i, i + 2))
+  for (let i = 0; i < recentlyUpdated.value.length; i += 2) pages.push(recentlyUpdated.value.slice(i, i + 2))
   return pages
 })
 const current = ref(0)
@@ -216,11 +222,11 @@ const latest = computed(() => posts.slice(0, 8))
           </div>
         </div>
 
-        <!-- 精选推荐 -->
+        <!-- 最近更新 -->
         <div class="top-right">
           <div class="recommend-card card">
             <div class="recommend-head">
-              <h2>精选推荐</h2>
+              <h2>最近更新</h2>
               <div class="recommend-indicators">
                 <button
                   v-for="(page, i) in recPages"
@@ -253,7 +259,7 @@ const latest = computed(() => posts.slice(0, 8))
                       <span class="recommend-title">{{ p.title }}</span>
                       <span class="recommend-desc">{{ p.description }}</span>
                       <span class="recommend-meta">
-                        <span>{{ p.date }}</span>
+                        <span>{{ p.updated }}</span>
                         <span class="dot"></span>
                         <span class="cat">{{ p.category }}</span>
                       </span>

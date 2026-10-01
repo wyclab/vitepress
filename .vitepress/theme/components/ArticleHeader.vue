@@ -12,16 +12,18 @@ const show = computed(() => {
 
 const title = computed(() => frontmatter.value.title || page.value.title || '')
 
-// 构建时由 config.mts 的 transformPageData 注入：{ updated, words, minutes, draft }
+// 构建时由 config.mts 的 transformPageData 注入：{ published, updated, words, minutes, draft }
 const meta = computed(() => page.value.articleMeta || null)
 
 // 草稿标记：只有本地 SHOW_DRAFTS=1 预览时草稿页才会被渲染，线上构建产物里不存在草稿页
 const isDraft = computed(() => !!meta.value?.draft)
 
-const updated = computed(() => {
-  const fm = frontmatter.value
-  return meta.value?.updated || fm.updated || fm.date || ''
-})
+// 发布时间（frontmatter.date），构建时已格式化为 YYYY-MM-DD，这里兜底格式化
+const fmt = (d) =>
+  d instanceof Date ? d.toISOString().slice(0, 10) : String(d ?? '').slice(0, 10)
+
+const published = computed(() => meta.value?.published || fmt(frontmatter.value.date) || '')
+const updated = computed(() => meta.value?.updated || '')
 </script>
 
 <template>
@@ -29,7 +31,8 @@ const updated = computed(() => {
     <h1 class="article-header-title">
       <span v-if="isDraft" class="article-header-draft">草稿</span>{{ title }}
     </h1>
-    <div v-if="updated || meta" class="article-header-meta">
+    <div v-if="meta" class="article-header-meta">
+      <span v-if="published">发布: {{ published }}</span>
       <span v-if="updated">更新: {{ updated }}</span>
       <span v-if="meta?.words">字数: {{ meta.words }} 字</span>
       <span v-if="meta?.minutes">时长: 约 {{ meta.minutes }} 分钟</span>
