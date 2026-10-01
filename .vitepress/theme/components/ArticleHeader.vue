@@ -12,8 +12,11 @@ const show = computed(() => {
 
 const title = computed(() => frontmatter.value.title || page.value.title || '')
 
-// 构建时由 config.mts 的 transformPageData 注入：{ updated, words, minutes }
+// 构建时由 config.mts 的 transformPageData 注入：{ updated, words, minutes, draft }
 const meta = computed(() => page.value.articleMeta || null)
+
+// 草稿标记：只有本地 SHOW_DRAFTS=1 预览时草稿页才会被渲染，线上构建产物里不存在草稿页
+const isDraft = computed(() => !!meta.value?.draft)
 
 const updated = computed(() => {
   const fm = frontmatter.value
@@ -23,7 +26,9 @@ const updated = computed(() => {
 
 <template>
   <header v-if="show" class="article-header">
-    <h1 class="article-header-title">{{ title }}</h1>
+    <h1 class="article-header-title">
+      <span v-if="isDraft" class="article-header-draft">草稿</span>{{ title }}
+    </h1>
     <div v-if="updated || meta" class="article-header-meta">
       <span v-if="updated">更新: {{ updated }}</span>
       <span v-if="meta?.words">字数: {{ meta.words }} 字</span>
@@ -45,6 +50,20 @@ const updated = computed(() => {
   font-weight: 700;
   line-height: 1.35;
   color: var(--vp-c-text-1);
+}
+
+/* 草稿标记：仅本地 SHOW_DRAFTS=1 预览草稿时出现 */
+.article-header-draft {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--vp-c-warning-1);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  vertical-align: 0.25em;
+  color: var(--vp-c-warning-1);
 }
 
 .article-header-meta {

@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isDraftFlag, parseFrontmatter } from './draft.ts'
 
 // 项目根目录（.vitepress 的上一级）
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -14,25 +15,21 @@ export interface CategoryDef {
   groupByYear?: boolean
 }
 
-/** 从 markdown frontmatter 里提取 title / sidebarTitle / date / order */
-function parseFrontmatter(content: string): {
+/** 从 markdown frontmatter 里提取 title / sidebarTitle / date / order / draft */
+function readFrontmatter(content: string): {
   title?: string
   sidebarTitle?: string
   date?: string
   order?: number
+  draft: boolean
 } {
-  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
-  if (!m) return {}
-  const fm: Record<string, string> = {}
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^([\w-]+):\s*(.*)$/)
-    if (kv) fm[kv[1]] = kv[2].trim().replace(/^['"]|['"]$/g, '')
-  }
+  const fm = parseFrontmatter(content)
   return {
     title: fm.title,
     sidebarTitle: fm.sidebarTitle,
     date: fm.date,
     order: fm.order && !Number.isNaN(Number(fm.order)) ? Number(fm.order) : undefined,
+    draft: isDraftFlag(fm.draft),
   }
 }
 
@@ -79,9 +76,10 @@ function groupItemsByYear(items: { text: string; date: string; link: string }[])
  * - 条目显示名优先取 frontmatter 的 sidebarTitle（侧边栏短标题），其次 title
  * - 有 frontmatter date 时按日期倒序（新的在前），否则按文件名排序
  * - 栏目开启 groupByYear 时，条目再按年份二次折叠（默认折叠，命中当前页自动展开）
+ * - `draft: yes` 的文章视为草稿，excludeDrafts 为 true 时不进侧边栏
  * - 新增 / 删除 md 文件后，重新跑 dev / build 即自动更新（dev 需重启）
  */
-export function buildTopicSidebar(topicDir: string, categories: CategoryDef[]) {
+export function buildTopicSidebar(topicDir: string, categories: CategoryDef[], excludeDrafts = true) {
   return categories.map(({ dir, label, groupByYear }) => {
     const absDir = path.join(projectRoot, topicDir, dir)
     const files = fs.existsSync(absDir)
@@ -101,17 +99,20 @@ export function buildTopicSidebar(topicDir: string, categories: CategoryDef[]) {
         let text = slug
         let date = ''
         let order: number | undefined
+        let draft = false
         try {
-          const fm = parseFrontmatter(fs.readFileSync(path.join(absDir, f), 'utf-8'))
+          const fm = readFrontmatter(fs.readFileSync(path.join(absDir, f), 'utf-8'))
           // 侧边栏优先显示 sidebarTitle（短标题），其次 title
           text = fm.sidebarTitle || fm.title || slug
           if (fm.date) date = fm.date
           order = fm.order
+          draft = fm.draft
         } catch {
           /* 读不到 frontmatter 就用文件名 */
         }
-        return { text, date, order, link: `/${topicDir}/${dir}/${slug}` }
+        return { text, date, order, draft, link: `/${topicDir}/${dir}/${slug}` }
       })
+      .filter((item) => !(excludeDrafts && item.draft))
       .sort((a, b) => {
         // 有 order 按 order 升序（手动编排优先），无 order 的按日期倒序排在后面
         const oa = a.order ?? Number.MAX_SAFE_INTEGER

@@ -3,6 +3,17 @@ import path from 'node:path'
 import { defineConfig } from 'vitepress'
 import type { Plugin } from 'vite'
 import { buildTopicSidebar, type CategoryDef } from './autoSidebar.ts'
+import { collectDrafts, isDraftFile, isDraftFlag, walkMarkdown } from './draft.ts'
+
+// ---------- 草稿（draft）不发布 ----------
+// 文章 frontmatter 里写 `draft: yes` 即视为草稿：不进入构建产物，
+// 也不出现在侧边栏 / 全部文章 / 标签页 / RSS / sitemap / 站内搜索中。
+// 本地想预览草稿：SHOW_DRAFTS=1 bun run docs:dev
+const showDrafts = process.env.SHOW_DRAFTS === '1'
+const excludeDrafts = !showDrafts
+// 草稿文件相对项目根的路径列表，直接作为 VitePress 的 srcExclude
+// （posts.data.js 也会复用同一份名单，保证列表页与构建结果一致）
+const draftPaths = excludeDrafts ? collectDrafts(process.cwd()) : []
 
 // ---------- 中文搜索分词 ----------
 // VitePress 本地搜索（minisearch）默认按空格/标点切词，中文整段会被当成一个 token，
@@ -31,20 +42,50 @@ function chineseFriendlyTokenize(text: string): string[] {
 // ---------- dev 下文章增删时自动重启，刷新自动侧边栏 ----------
 // 侧边栏是 config 加载时扫描目录生成的静态配置，dev 中新增/删除 md 不会自动重算。
 // 这里监听 articles/ 下 md 文件的创建与删除，防抖后重启 dev server。
+// 另外：切换草稿状态（draft: yes / no）会改变 srcExclude，必须重启才会生效。
 function sidebarAutoRestart(): Plugin {
   let timer: NodeJS.Timeout | undefined
+  // 记录各文章当前的草稿状态，用于判断「保存后草稿状态是否真的变了」
+  const draftState = new Map<string, boolean>()
+
+  const isArticle = (file: string) => {
+    const f = file.replace(/\\/g, '/')
+    return f.includes('/articles/') && f.endsWith('.md') && !f.endsWith('index.md')
+  }
+
   return {
     name: 'sidebar-auto-restart',
     apply: 'serve',
     configureServer(server) {
-      const refresh = (file: string) => {
-        if (!file.replace(/\\/g, '/').includes('/articles/') || !file.endsWith('.md')) return
-        if (file.includes('/node_modules/') || file.endsWith('index.md')) return
+      const restart = (file: string) => {
+        if (!isArticle(file)) return
         clearTimeout(timer)
         timer = setTimeout(() => server.restart(), 500)
       }
-      server.watcher.on('add', refresh)
-      server.watcher.on('unlink', refresh)
+
+      // 预热：记录已有文章的草稿状态，避免首次保存时误判为「状态变化」
+      for (const f of walkMarkdown(path.join(process.cwd(), 'articles'))) {
+        draftState.set(f, isDraftFile(f))
+      }
+
+      server.watcher.on('add', (file) => {
+        if (!isArticle(file)) return
+        draftState.set(file, isDraftFile(file))
+        restart(file)
+      })
+      server.watcher.on('unlink', (file) => {
+        if (!isArticle(file)) return
+        draftState.delete(file)
+        restart(file)
+      })
+      server.watcher.on('change', (file) => {
+        if (!isArticle(file)) return
+        const next = isDraftFile(file)
+        const prev = draftState.get(file)
+        draftState.set(file, next)
+        // 只有草稿状态发生变化（上线/下线）才需要重启重算 srcExclude 与侧边栏
+        if (prev !== undefined && prev !== next) restart(file)
+      })
     },
   }
 }
@@ -120,7 +161,10 @@ const topics: TopicDef[] = [
 // 生成 sidebar：'/articles/<专题>/' → 自动扫描的侧边栏
 function buildTopicsSidebar(): Record<string, ReturnType<typeof buildTopicSidebar>> {
   return Object.fromEntries(
-    topics.map((t) => [`/articles/${t.dir}/`, buildTopicSidebar(`articles/${t.dir}`, t.categories)]),
+    topics.map((t) => [
+      `/articles/${t.dir}/`,
+      buildTopicSidebar(`articles/${t.dir}`, t.categories, excludeDrafts),
+    ]),
   )
 }
 
@@ -130,6 +174,15 @@ function buildTopicsSidebar(): Record<string, ReturnType<typeof buildTopicSideba
 function fmtDate(d: any): string {
   if (d instanceof Date) return d.toISOString().slice(0, 10)
   return String(d ?? '').slice(0, 10)
+}
+
+// 去掉 frontmatter 和代码块后按字符数统计（中文场景，正文 = 全部字符去掉空白）
+function countWords(content: string): number {
+  return content
+    .replace(/^---\r?\n[\s\S]*?\r?\n---/, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/\s/g, '')
+    .length
 }
 
 function injectArticleMeta(pageData: any, cfg: any) {
@@ -147,12 +200,7 @@ function injectArticleMeta(pageData: any, cfg: any) {
   } catch {
     return
   }
-  // 去掉 frontmatter 和代码块后按字符数统计（中文场景）
-  const body = raw
-    .replace(/^---\r?\n[\s\S]*?\r?\n---/, '')
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/\s/g, '')
-  const words = body.length
+  const words = countWords(raw)
 
   // 更新时间优先级：frontmatter updated > frontmatter date > 文件修改时间
   const fmUpdated = pageData.frontmatter?.updated || pageData.frontmatter?.date
@@ -163,6 +211,8 @@ function injectArticleMeta(pageData: any, cfg: any) {
     updated,
     words,
     minutes: Math.max(1, Math.round(words / 400)),
+    // 只有本地 SHOW_DRAFTS=1 预览时草稿页才会走到这里，用于在文章头部打「草稿」标记
+    draft: isDraftFlag(pageData.frontmatter?.draft),
   }
 }
 
@@ -188,14 +238,19 @@ function parseFrontmatter(content: string): Record<string, any> {
   return fm
 }
 
-function walkMarkdown(dir: string, out: string[] = []): string[] {
-  if (!fs.existsSync(dir)) return out
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name)
-    if (entry.isDirectory()) walkMarkdown(full, out)
-    else if (entry.name.endsWith('.md')) out.push(full)
-  }
-  return out
+// 统计全站文章正文总字数（与 RSS 同口径：过滤 index 页与草稿）
+function calcTotalWords(srcDir: string): number {
+  const articlesDir = path.join(srcDir, 'articles')
+  return walkMarkdown(articlesDir)
+    .filter((f) => !path.basename(f).startsWith('index.'))
+    .filter((f) => !(excludeDrafts && isDraftFile(f)))
+    .reduce((sum, f) => {
+      try {
+        return sum + countWords(fs.readFileSync(f, 'utf-8'))
+      } catch {
+        return sum
+      }
+    }, 0)
 }
 
 // XML 文本节点转义，避免标题/描述中的 & < > 破坏 feed 结构
@@ -220,6 +275,7 @@ function generateRss(siteConfig: any) {
       const fm = parseFrontmatter(content)
       const rel = path.relative(srcDir, f).replace(/\\/g, '/').replace(/\.md$/, '')
       return {
+        draft: isDraftFlag(fm.draft),
         title: fm.title || path.basename(f, '.md'),
         description: fm.description || '',
         date: fm.date ? new Date(fm.date) : new Date(),
@@ -227,6 +283,7 @@ function generateRss(siteConfig: any) {
         tags: Array.isArray(fm.tags) ? fm.tags : [],
       }
     })
+    .filter((p) => !(excludeDrafts && p.draft))
     .sort((a, b) => b.date.getTime() - a.date.getTime())
 
   const site = siteConfig.site
@@ -269,6 +326,8 @@ const siteTitle = '无用处'
 const siteDescription = '无用处实验室，看似无用，实则真的无用。'
 // 站点域名：RSS / sitemap 等绝对链接的唯一来源，换域名只改这一处
 const siteOrigin = 'https://wyclab.com'
+// 全站文章总字数（config 加载时扫描一次；dev 下增删文章会触发 sidebarAutoRestart 重启后自动重算）
+const totalWords = calcTotalWords(process.cwd())
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -277,6 +336,8 @@ export default defineConfig({
   appearance: true,
   description: siteDescription,
   ignoreDeadLinks: true,
+  // 草稿（frontmatter `draft: yes`）不进构建产物
+  srcExclude: draftPaths,
   // 自动生成 sitemap.xml，与 RSS 共用同一域名
   sitemap: { hostname: siteOrigin },
   head: [
@@ -292,6 +353,9 @@ export default defineConfig({
   ],
 
   themeConfig: {
+    // 站点统计：footer 展示全站字数
+    siteStats: { totalWords },
+
     nav: [
       { text: '首页', link: '/' },
       { text: '文章', link: '/pages/posts' },

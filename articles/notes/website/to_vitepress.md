@@ -23,3 +23,12 @@ tags: [建站笔记, AI]
 2. 将Markdown文件搬家，从老博客搬到新路径，推荐直接用AI agent处理，AI可以快速批量调整文章的frontmatter、调整图片路径、重新命名、归档等等，非常便捷也不会出错。
 3. 根据自己的喜好，要求在首页提供“最新文章”，在菜单栏提供“文章”并按照时间轴排序，并进行其他类似于黑夜模式、样式风格的美化等。
 4. GitHub+Edgeone部署。方便后续撰写新内容。
+
+## 拓展功能
+
+## 1.增加twikoo评论
+
+twikoo的后端支持免费部署在Edgeone，详见[EdgeOne Makers 部署](https://twikoo.js.org/backend.html#edgeone-makers-%E9%83%A8%E7%BD%B2)。后端部署之后，博客前端引用，直接交给小弟workbuddy。
+
+>  给网站的文章页面和关于页面、友链页面增加评论区，使用twikoo，这是他的文档https://twikoo.js.org/。 已经建立好了后端 twikoo.wyclab.com
+

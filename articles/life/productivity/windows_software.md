@@ -8,6 +8,22 @@ tags: [生产力]
 
 
 
+## AI与agent
+
+### 1.Workbuddy
+
+截至2026年10月，workbuddy是我用过最适合国内使用的Agent，而且token积分赠送很慷慨，现阶段轻度使用基本不花钱。
+
+欢迎使用我的邀请链接注册：[https://www.workbuddy.cn/events/invite?inviteCode=cd3h457xh4c0s](https://www.workbuddy.cn/events/invite?inviteCode=cd3h457xh4c0s)
+
+## 2. Codex
+
+略
+
+
+
+
+
 ## 写博客套装
 
  ### 1. Typora
