@@ -22,11 +22,11 @@ friendFormat:
   - label: 头像地址
     value: https://github.com/wyclab.png
 friends:
-  - name: VitePress
-    url: https://vitepress.dev/zh/
-    desc: VitePress 官方文档
-    avatar: https://vitepress.dev/vitepress-logo-mini.svg
-    tags: [文档, 静态站点]
+  - name: 高性价比人生指南
+    url: https://eternity4719.github.io/HowToLiveBetter/
+    desc: 每一条都回答两个问题：花掉什么，换回什么。
+    avatar: https://eternity4719.github.io/HowToLiveBetter/logo.svg
+    tags: [指南]
   - name: 个站商店
     url: https://storeweb.cn/
     desc:  一个精致的，带社交元素的个人网站发布平台，博客收录网站
