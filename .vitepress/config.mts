@@ -148,6 +148,15 @@ const topics: TopicDef[] = [
     ],
   },
   {
+    dir: 'manage',
+    label: '企业管理',
+    categories: [
+      { dir: 'equity', label: '股权治理' },
+      { dir: 'tax', label: '税务处理' },
+      { dir: 'management-art', label: '管理艺术' },
+    ],
+  },
+  {
     dir: 'notes',
     label: '随笔',
     categories: [
