@@ -1,7 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
 import PostsList from './components/PostsList.vue'
-import TagsPage from './components/TagsPage.vue'
+import ArchivesPage from './components/ArchivesPage.vue'
 import FriendPage from './components/FriendPage.vue'
 import './style.css'
 
@@ -10,7 +10,7 @@ export default {
   Layout,
   enhanceApp({ app }: any) {
     app.component('PostsList', PostsList)
-    app.component('TagsPage', TagsPage)
+    app.component('ArchivesPage', ArchivesPage)
     app.component('FriendPage', FriendPage)
 
     // 自动跟随系统亮/暗主题（仅在用户未手动选择时生效）

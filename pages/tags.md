@@ -1,5 +1,5 @@
 ---
-title: 标签列表
+title: 归档
 layout: page
 ---
-<TagsPage />
+<ArchivesPage />

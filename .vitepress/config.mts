@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vitepress'
 import type { Plugin } from 'vite'
-import { buildTopicSidebar, type CategoryDef } from './autoSidebar.ts'
+import { buildTopicSidebar } from './autoSidebar.ts'
 import { collectDrafts, isDraftFile, isDraftFlag, walkMarkdown } from './draft.ts'
 import { getGitTimestamp } from './gitTimestamp.mjs'
+import { topics } from './topics.ts'
 
 // ---------- 草稿（draft）不发布 ----------
 // 文章 frontmatter 里写 `draft: yes` 即视为草稿：不进入构建产物，
@@ -91,83 +92,8 @@ function sidebarAutoRestart(): Plugin {
   }
 }
 
-// ---------- 专题配置（每个专题一个目录，侧边栏按目录自动生成） ----------
-interface TopicDef {
-  dir: string
-  label: string
-  categories: CategoryDef[]
-}
-
-const topics: TopicDef[] = [
-  {
-    dir: 'zstn',
-    label: '置身事内',
-    categories: [
-      { dir: 'macro', label: '宏观观察' },
-      { dir: 'gov', label: '政府观察' },
-      { dir: 'firm', label: '企业观察' },
-      { dir: 'law', label: '法治观察' },
-    ],
-  },
-  {
-    dir: 'life',
-    label: '生活指南',
-    categories: [
-      { dir: 'life-plan', label: '人生主线' },
-      { dir: 'beijing', label: '北京通' },
-      { dir: 'parenting', label: '养娃记录' },
-      { dir: 'smart-life', label: '智能生活' },
-      { dir: 'productivity', label: '生产力' },
-    ],
-  },
-  {
-    dir: 'fitness',
-    label: '健康健身',
-    categories: [
-      { dir: 'basics', label: '基础知识' },
-      { dir: 'posture', label: '日常体态' },
-      { dir: 'functional', label: '功能训练' },
-      { dir: 'strength', label: '力量训练' },
-    ],
-  },
-  {
-    dir: 'ai',
-    label: 'AI世界',
-    categories: [
-      { dir: 'ai-invest', label: 'AI投资' },
-      { dir: 'ai-tech', label: 'AI技术' },
-      { dir: 'prompts', label: '提示词' },
-    ],
-  },
-  {
-    dir: 'invest',
-    label: '投资笔记',
-    categories: [
-      { dir: 'basics', label: '基础知识' },
-      { dir: 'practice', label: '实战记录' },
-    ],
-  },
-  {
-    dir: 'manage',
-    label: '企业管理',
-    categories: [
-      { dir: 'equity', label: '股权治理' },
-      { dir: 'tax', label: '税务处理' },
-      { dir: 'management-art', label: '管理艺术' },
-    ],
-  },
-  {
-    dir: 'notes',
-    label: '随笔',
-    categories: [
-      { dir: 'diary', label: '日记', groupByYear: true },
-      { dir: 'books', label: '读书笔记' },
-      { dir: 'journal', label: '游记' },
-      { dir: 'website', label: '建站笔记' },
-    ],
-  },
-]
-
+// ---------- 专题侧边栏 ----------
+// 专题定义在 ./topics.ts（归档页共用同一份数据），这里只负责生成侧边栏
 // 生成 sidebar：'/articles/<专题>/' → 自动扫描的侧边栏
 function buildTopicsSidebar(): Record<string, ReturnType<typeof buildTopicSidebar>> {
   return Object.fromEntries(
@@ -377,7 +303,8 @@ export default defineConfig({
         text: '专题',
         items: topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
       },
-      { text: '标签', link: '/pages/tags' },
+      // 路径沿用 /pages/tags（原标签页），页面内容已改造为「归档」
+      { text: '归档', link: '/pages/tags' },
       { text: '友链', link: '/pages/friend' },
       { text: '关于', link: '/pages/about' },
     ],
