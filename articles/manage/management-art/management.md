@@ -2,8 +2,8 @@
 title: '管理艺术'
 description: 'management'
 date: 2026-05-29
-category: 生活指南
-tags: [人生主线]
+category: 企业管理
+tags: [领导力, 管理,]
 order: 2
 ---
 

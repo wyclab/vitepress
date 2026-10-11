@@ -753,7 +753,11 @@ html {
 
 /* ============ 归档页（标签筛选 · 文章时间线） ============ */
 .archives-page {
-  max-width: 1100px;
+  /* 归档页专属尺寸，按需微调改这两个值即可 */
+  --arch-max-width: 1240px; /* 内容区最大宽度 */
+  --arch-aside-width: 350px; /* 右侧标签筛选列宽 */
+
+  max-width: var(--arch-max-width);
   margin: 0 auto;
   padding: 48px 24px 64px;
   min-height: calc(100vh - var(--vp-nav-height));
@@ -765,8 +769,8 @@ html {
 /* 主体两栏：左文章 / 右标签筛选（窄屏回退为上下结构，DOM 顺序即窄屏顺序） */
 .arch-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 272px;
-  gap: 36px;
+  grid-template-columns: minmax(0, 1fr) var(--arch-aside-width);
+  gap: 40px;
   align-items: start;
 }
 
@@ -788,10 +792,10 @@ html {
   overscroll-behavior: contain;
 }
 
-/* 侧栏内的标签面板更紧凑（仍是标签云，不强制每行一个） */
+/* 侧栏内的标签面板：更紧凑，保证一行能排下 3~4 个标签 */
 .arch-aside .tag-panel {
   gap: 6px;
-  padding: 16px;
+  padding: 14px;
 }
 
 /* 窄屏：回退为上下结构（标签在上、文章在下），侧栏取消吸顶与内部滚动 */
@@ -904,17 +908,18 @@ html {
   box-shadow: var(--blog-shadow);
 }
 
+/* 标签 chip：紧凑尺寸，一行可容纳 3~4 个 */
 .tag-button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 5px 10px;
+  gap: 4px;
+  min-height: 28px;
+  padding: 3px 7px;
   color: var(--vp-c-text-2);
   font: inherit;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
@@ -931,9 +936,28 @@ html {
   border-color: var(--vp-c-brand-1);
 }
 
-.tag-icon { width: 16px; height: 16px; }
-.tag-name { font-size: 14px; }
-.tag-count { color: var(--vp-c-text-3); font-size: 11px; font-weight: 700; }
+/* 图标 13px：小尺寸下只求轮廓可辨；flex-shrink 防止被压扁 */
+.tag-icon {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+}
+
+.tag-name {
+  max-width: 104px;
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tag-count {
+  flex: 0 0 auto;
+  color: var(--vp-c-text-3);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 
 /* 归档页：按年 / 月分组的紧凑文章列表 */
 .arch-year + .arch-year { margin-top: 36px; }
