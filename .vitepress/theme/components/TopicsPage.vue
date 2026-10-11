@@ -5,37 +5,20 @@ import { topics } from '../../topics.ts'
 import { data as posts } from '../posts.data.js'
 
 // ============ 专题卡片 ============
-// 每个专题：文章数 + 最新一篇文章的更新时间（updatedTs 排序的 posts 里按 url 前缀反查）
+// 每个专题：文章数 + 该专题内最近更新的一篇文章（按 updatedTs 降序取第一条）
 const topicCards = computed(() =>
   topics.map((t) => {
     const prefix = `/articles/${t.dir}/`
     const list = posts.filter((p) => p.url.startsWith(prefix))
-    const latest = list.reduce((acc, p) => (p.updatedTs > (acc?.updatedTs ?? 0) ? p : acc), null)
+    const latest = [...list].sort((a, b) => b.updatedTs - a.updatedTs)[0] ?? null
     return {
       ...t,
       href: withBase(`${prefix}index.html`),
       cover: withBase(t.cover),
       count: list.length,
-      latest,
+      latest: latest ? { ...latest, href: withBase(latest.url) } : null,
     }
   }),
-)
-
-// ============ 最近更新（卡片下方，跨专题取最近 8 篇，按更新时间倒序） ============
-const topicLabelOf = (url) => {
-  const dir = url.split('/')[2]
-  return topics.find((t) => t.dir === dir)?.label ?? ''
-}
-
-const recent = computed(() =>
-  [...posts]
-    .sort((a, b) => b.updatedTs - a.updatedTs)
-    .slice(0, 8)
-    .map((p) => ({
-      ...p,
-      topic: topicLabelOf(p.url),
-      href: withBase(p.url),
-    })),
 )
 
 const fmt = (d) => (d ? d.slice(5).replace('-', ' 月 ') + ' 日' : '')
@@ -55,38 +38,44 @@ const titleOf = (p) => {
       <p class="topics-sub">{{ topics.length }} 个专题 · {{ posts.length }} 篇文章</p>
     </header>
 
-    <!-- ========== 专题卡片 ========== -->
+    <!-- ========== 专题卡片（卡片内含该专题最近更新的文章） ========== -->
     <section class="topics-grid">
-      <a v-for="card in topicCards" :key="card.dir" class="topic-card" :href="card.href">
-        <div class="topic-cover" :style="{ backgroundImage: `url(${card.cover})` }" />
-        <div class="topic-shade" />
-        <div class="topic-info">
-          <h2 class="topic-title">{{ card.label }}</h2>
-          <p class="topic-desc">{{ card.description }}</p>
+      <article v-for="card in topicCards" :key="card.dir" class="topic-card">
+        <!-- 整卡可点：铺满卡片的透明链接，进专题首页 -->
+        <a class="topic-card-link" :href="card.href" :aria-label="`${card.label} 专题`" />
+
+        <div class="topic-cover-wrap">
+          <div class="topic-cover" :style="{ backgroundImage: `url(${card.cover})` }" />
+          <div class="topic-shade" />
+          <div class="topic-info">
+            <h2 class="topic-title">{{ card.label }}</h2>
+            <p class="topic-desc">{{ card.description }}</p>
+          </div>
+        </div>
+
+        <div class="topic-body">
           <p class="topic-meta">
-            <span>{{ card.count }} 篇</span>
+            <span>{{ card.count }} 篇文章</span>
             <template v-if="card.latest">
-              <span class="topic-dot">·</span>
+              <span class="topic-meta-dot">·</span>
               <span>最近更新 {{ fmt(card.latest.updated) }}</span>
             </template>
           </p>
-        </div>
-      </a>
-    </section>
 
-    <!-- ========== 最近更新 ========== -->
-    <section class="topics-recent">
-      <div class="section-heading">
-        <h2>最近更新</h2>
-        <span>按更新时间排序</span>
-      </div>
-      <ul class="topics-recent-list">
-        <li v-for="p in recent" :key="p.url" class="topics-recent-row">
-          <time class="topics-recent-date">{{ fmt(p.updated) }}</time>
-          <span class="topics-recent-topic">{{ p.topic }}</span>
-          <a class="topics-recent-title" :href="p.href" :title="titleOf(p)">{{ titleOf(p) }}</a>
-        </li>
-      </ul>
+          <!-- 该专题最近更新的一篇文章：小红点 + 标题（日期已在上面，这里不重复） -->
+          <a
+            v-if="card.latest"
+            class="topic-latest"
+            :href="card.latest.href"
+            :title="titleOf(card.latest)"
+          >
+            <span class="topic-latest-dot" aria-hidden="true" />
+            <span class="topic-latest-title">{{ titleOf(card.latest) }}</span>
+            <span class="topic-latest-badge">NEW</span>
+          </a>
+          <p v-else class="topic-latest-empty">暂无文章</p>
+        </div>
+      </article>
     </section>
   </div>
 </template>
