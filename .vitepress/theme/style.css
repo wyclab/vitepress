@@ -751,9 +751,9 @@ html {
   color: var(--vp-c-text-2);
 }
 
-/* ============ 归档页（专题 · 标签 · 文章时间线） ============ */
+/* ============ 归档页（标签筛选 · 文章时间线） ============ */
 .archives-page {
-  max-width: 860px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 48px 24px 64px;
   min-height: calc(100vh - var(--vp-nav-height));
@@ -761,6 +761,58 @@ html {
 }
 
 .arch-head { margin-bottom: 36px; }
+
+/* 主体两栏：左文章 / 右标签筛选（窄屏回退为上下结构，DOM 顺序即窄屏顺序） */
+.arch-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 272px;
+  gap: 36px;
+  align-items: start;
+}
+
+.arch-main {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.arch-aside {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  /* 随页面滚动吸顶，避开顶部固定导航 */
+  position: sticky;
+  top: calc(var(--vp-nav-height) + 16px);
+  max-height: calc(100vh - var(--vp-nav-height) - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 侧栏内的标签面板更紧凑（仍是标签云，不强制每行一个） */
+.arch-aside .tag-panel {
+  gap: 6px;
+  padding: 16px;
+}
+
+/* 窄屏：回退为上下结构（标签在上、文章在下），侧栏取消吸顶与内部滚动 */
+@media (max-width: 960px) {
+  .arch-body {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .arch-main,
+  .arch-aside {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .arch-aside {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
 
 .arch-head h1 {
   margin: 0 0 6px;
@@ -884,31 +936,33 @@ html {
 .tag-count { color: var(--vp-c-text-3); font-size: 11px; font-weight: 700; }
 
 /* 归档页：按年 / 月分组的紧凑文章列表 */
-.arch-year { margin-bottom: 28px; }
+.arch-year + .arch-year { margin-top: 36px; }
 
 .arch-year-title,
 .arch-month-title {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
   color: var(--blog-title);
 }
 
 .arch-year-title {
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  font-size: 20px;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  font-size: 21px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   border-bottom: 1px solid var(--blog-card-border);
 }
 
-.arch-month { margin-bottom: 14px; }
+.arch-month + .arch-month { margin-top: 18px; }
 
 .arch-month-title {
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--blog-text);
 }
 
@@ -928,17 +982,19 @@ html {
 .arch-row {
   display: flex;
   align-items: baseline;
-  gap: 14px;
-  padding: 5px 8px;
-  border-radius: 6px;
+  gap: 18px;
+  padding: 9px 12px;
+  border-radius: 8px;
   transition: background-color 0.2s ease;
 }
+
+.arch-row + .arch-row { margin-top: 2px; }
 
 .arch-row:hover { background: var(--blog-pill-bg); }
 
 .arch-date {
   flex: 0 0 auto;
-  width: 48px;
+  width: 56px;
   font-size: 13px;
   color: var(--blog-muted);
   font-variant-numeric: tabular-nums;
@@ -948,7 +1004,8 @@ html {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-size: 15px;
+  font-size: 15.5px;
+  line-height: 1.5;
   color: var(--blog-title);
   text-decoration: none;
   white-space: nowrap;
@@ -961,7 +1018,8 @@ html {
 @media (max-width: 640px) {
   .arch-row {
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
+    padding: 8px 10px;
   }
 
   /* 窄屏标题换行显示，避免长标题被截断 */

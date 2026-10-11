@@ -177,71 +177,82 @@ const titleOf = (p) => {
       <p class="arch-sub">共 {{ posts.length }} 篇文章 · {{ tagStats.length }} 个标签</p>
     </header>
 
-    <!-- ========== 标签 ========== -->
-    <section class="arch-section">
-      <div class="section-heading">
-        <h2>标签</h2>
-        <span>
-          {{ tagStats.length }} 个<template v-if="activeTag"> · 已筛选「{{ activeTag }}」</template>
-        </span>
-      </div>
-
-      <div v-if="tagStats.length" class="tag-panel">
-        <button
-          v-for="s in tagStats"
-          :key="s.tag"
-          type="button"
-          class="tag-button"
-          :class="{ 'is-active': activeTag === s.tag }"
-          :aria-pressed="activeTag === s.tag"
-          :title="activeTag === s.tag ? `取消筛选：${s.tag}` : `只看：${s.tag}`"
-          @click="toggleTag(s.tag)"
-        >
-          <svg class="tag-icon" viewBox="0 0 1024 1024" aria-hidden="true">
-            <path v-for="(d, i) in iconForTag(s.tag)" :key="i" fill="currentColor" :d="d" />
-          </svg>
-          <span class="tag-name">{{ s.tag }}</span>
-          <span class="tag-count">{{ s.count }}</span>
-        </button>
-      </div>
-      <div v-else class="arch-empty">暂无标签</div>
-    </section>
-
-    <!-- ========== 文章 ========== -->
-    <section id="archive-posts" class="arch-section">
-      <div class="section-heading">
-        <h2>{{ activeTag ? `标签：${activeTag}` : '全部文章' }}</h2>
-        <span class="arch-heading-right">
-          {{ filtered.length }} 篇
-          <button v-if="activeTag" type="button" class="arch-clear" @click="clearFilter">
-            清除筛选
-          </button>
-        </span>
-      </div>
-
-      <div v-if="!filtered.length" class="arch-empty">
-        <p v-if="activeTag">没有带「{{ activeTag }}」标签的文章</p>
-        <p v-else>暂无文章</p>
-        <button v-if="activeTag" type="button" class="arch-clear" @click="clearFilter">
-          清除筛选
-        </button>
-      </div>
-
-      <div v-else class="arch-years">
-        <div v-for="g in groups" :key="g.year" class="arch-year">
-          <h3 class="arch-year-title">{{ g.year }}<span>{{ g.count }} 篇</span></h3>
-
-          <div v-for="m in g.months" :key="m.month" class="arch-month">
-            <h4 class="arch-month-title">{{ monthLabel(m.month) }}<span>{{ m.count }} 篇</span></h4>
-            <ul class="arch-list">
-              <li v-for="p in m.list" :key="p.url" class="arch-row">
-                <time class="arch-date">{{ mmdd(p.date) }}</time>
-                <a class="arch-title" :href="withBase(p.url)" :title="titleOf(p)">{{ titleOf(p) }}</a>
-              </li>
-            </ul>
+    <!-- 桌面：左文章 / 右标签筛选；窄屏：标签在上、文章在下（DOM 顺序即窄屏顺序） -->
+    <div class="arch-body">
+      <!-- ========== 标签筛选 ========== -->
+      <aside class="arch-aside">
+        <section class="arch-section">
+          <div class="section-heading">
+            <h2>标签</h2>
+            <span>{{ tagStats.length }} 个</span>
           </div>
-        </div>
+
+          <div v-if="tagStats.length" class="tag-panel">
+            <button
+              v-for="s in tagStats"
+              :key="s.tag"
+              type="button"
+              class="tag-button"
+              :class="{ 'is-active': activeTag === s.tag }"
+              :aria-pressed="activeTag === s.tag"
+              :title="activeTag === s.tag ? `取消筛选：${s.tag}` : `只看：${s.tag}`"
+              @click="toggleTag(s.tag)"
+            >
+              <svg class="tag-icon" viewBox="0 0 1024 1024" aria-hidden="true">
+                <path v-for="(d, i) in iconForTag(s.tag)" :key="i" fill="currentColor" :d="d" />
+              </svg>
+              <span class="tag-name">{{ s.tag }}</span>
+              <span class="tag-count">{{ s.count }}</span>
+            </button>
+          </div>
+          <div v-else class="arch-empty">暂无标签</div>
+        </section>
+      </aside>
+
+      <!-- ========== 文章 ========== -->
+      <div class="arch-main">
+        <section id="archive-posts" class="arch-section">
+          <div class="section-heading">
+            <h2>{{ activeTag ? `标签：${activeTag}` : '全部文章' }}</h2>
+            <span class="arch-heading-right">
+              {{ filtered.length }} 篇
+              <button v-if="activeTag" type="button" class="arch-clear" @click="clearFilter">
+                清除筛选
+              </button>
+            </span>
+          </div>
+
+          <div v-if="!filtered.length" class="arch-empty">
+            <p v-if="activeTag">没有带「{{ activeTag }}」标签的文章</p>
+            <p v-else>暂无文章</p>
+            <button v-if="activeTag" type="button" class="arch-clear" @click="clearFilter">
+              清除筛选
+            </button>
+          </div>
+
+          <div v-else class="arch-years">
+            <div v-for="g in groups" :key="g.year" class="arch-year">
+              <h3 class="arch-year-title">{{ g.year }}<span>{{ g.count }} 篇</span></h3>
+
+              <div v-for="m in g.months" :key="m.month" class="arch-month">
+                <h4 class="arch-month-title">
+                  {{ monthLabel(m.month) }}<span>{{ m.count }} 篇</span>
+                </h4>
+                <ul class="arch-list">
+                  <li v-for="p in m.list" :key="p.url" class="arch-row">
+                    <time class="arch-date">{{ mmdd(p.date) }}</time>
+                    <a
+                      class="arch-title"
+                      :href="withBase(p.url)"
+                      :title="titleOf(p)"
+                    >{{ titleOf(p) }}</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </div>
 </template>
