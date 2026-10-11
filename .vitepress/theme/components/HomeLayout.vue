@@ -290,7 +290,7 @@ const latest = computed(() => posts.slice(0, 8))
 
         <!-- 底部查看全部：手机滑到底部即可点击 -->
         <div class="latest-more">
-          <a class="latest-more-link" :href="withBase('/pages/posts/')">
+          <a class="latest-more-link" :href="withBase('/pages/tags/')">
             查看全部文章
             <svg class="latest-more-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

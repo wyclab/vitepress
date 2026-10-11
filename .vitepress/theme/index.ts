@@ -3,6 +3,7 @@ import Layout from './Layout.vue'
 import PostsList from './components/PostsList.vue'
 import ArchivesPage from './components/ArchivesPage.vue'
 import FriendPage from './components/FriendPage.vue'
+import TopicsPage from './components/TopicsPage.vue'
 import './style.css'
 
 export default {
@@ -12,6 +13,7 @@ export default {
     app.component('PostsList', PostsList)
     app.component('ArchivesPage', ArchivesPage)
     app.component('FriendPage', FriendPage)
+    app.component('TopicsPage', TopicsPage)
 
     // 自动跟随系统亮/暗主题（仅在用户未手动选择时生效）
     if (typeof window !== 'undefined') {

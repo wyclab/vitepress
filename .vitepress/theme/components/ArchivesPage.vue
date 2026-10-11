@@ -2,7 +2,6 @@
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { withBase } from 'vitepress'
 import { data as posts } from '../posts.data.js'
-import { topics } from '../../topics.ts'
 
 // ============ 图标（Element Plus Icons, MIT，viewBox 0 0 1024 1024） ============
 // 沿用原标签页的图标表，保持站内视觉一致
@@ -67,35 +66,6 @@ const TAG_ICON = {
 }
 
 const iconForTag = (tag) => ICON_PATHS[TAG_ICON[tag] || 'tag']
-
-// ============ 专题（分类）统计 ============
-// 文章 url 形如 /articles/<专题>/<栏目>/<slug>.html，取第二段作为专题
-function topicOf(url) {
-  const parts = String(url || '').replace(/^\//, '').split('/')
-  return parts[0] === 'articles' ? parts[1] : ''
-}
-
-const topicStats = computed(() => {
-  const buckets = new Map()
-  for (const p of posts) {
-    const key = topicOf(p.url)
-    if (!key) continue
-    if (!buckets.has(key)) buckets.set(key, [])
-    buckets.get(key).push(p)
-  }
-  // posts 已按发布时间倒序，桶内第一条即该专题最新文章
-  return topics.map((t) => {
-    const list = buckets.get(t.dir) || []
-    return {
-      dir: t.dir,
-      label: t.label,
-      count: list.length,
-      categoryCount: t.categories.length,
-      latest: list[0] || null,
-      link: `/articles/${t.dir}/`,
-    }
-  })
-})
 
 // ============ 标签统计（按数量降序） ============
 const tagStats = computed(() => {
@@ -204,34 +174,8 @@ const titleOf = (p) => {
   <div id="main" class="archives-page">
     <header class="arch-head">
       <h1>归档</h1>
-      <p class="arch-sub">
-        共 {{ posts.length }} 篇文章 · {{ topicStats.length }} 个专题 · {{ tagStats.length }} 个标签
-      </p>
+      <p class="arch-sub">共 {{ posts.length }} 篇文章 · {{ tagStats.length }} 个标签</p>
     </header>
-
-    <!-- ========== 专题 ========== -->
-    <section class="arch-section">
-      <div class="section-heading">
-        <h2>专题</h2>
-        <span>{{ topicStats.length }} 个</span>
-      </div>
-
-      <div v-if="topicStats.length" class="topic-panel">
-        <a v-for="t in topicStats" :key="t.dir" class="topic-item" :href="withBase(t.link)">
-          <span class="topic-main">
-            <span class="topic-name">{{ t.label }}</span>
-            <span class="topic-meta">{{ t.count }} 篇 · {{ t.categoryCount }} 个栏目</span>
-          </span>
-          <span v-if="t.latest" class="topic-latest">
-            <span class="topic-latest-label">最新</span>
-            <span class="topic-latest-title">{{ titleOf(t.latest) }}</span>
-            <time>{{ t.latest.date }}</time>
-          </span>
-          <span v-else class="topic-latest is-empty">暂无文章</span>
-        </a>
-      </div>
-      <div v-else class="arch-empty">暂无专题</div>
-    </section>
 
     <!-- ========== 标签 ========== -->
     <section class="arch-section">

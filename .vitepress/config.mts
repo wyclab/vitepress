@@ -298,9 +298,12 @@ export default defineConfig({
 
     nav: [
       { text: '首页', link: '/' },
-      { text: '文章', link: '/pages/posts' },
       {
-        text: '专题',
+        // 「专题」文字本身是锚点，点击进入专题页；悬停仍展开下拉（VPFlyout 用 v-html 渲染 text）。
+        // 注意：锚点在 button 内，VitePress 全局路由拦截会跳过，SPA 跳转由 Layout.vue 里
+        // 的 nav-topics-link 点击处理接管；href 用 .html 形式（cleanUrls 未开启，目录形式会 404）
+        text: '<a class="nav-topics-link" href="/pages/topics.html">专题</a>',
+        activeMatch: '^/pages/topics',
         items: topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
       },
       // 路径沿用 /pages/tags（原标签页），页面内容已改造为「归档」
