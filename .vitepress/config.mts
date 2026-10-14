@@ -299,12 +299,19 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       {
-        // 「专题」文字本身是锚点，点击进入专题页；悬停仍展开下拉（VPFlyout 用 v-html 渲染 text）。
+        // 「专题」是普通导航文字 + 一条竖线，与右侧下拉箭头隔开：
+        // 点「专题」进专题页，鼠标放上去自动展开下拉（VPFlyout 的 hover 行为，text 用 v-html 渲染）。
         // 注意：锚点在 button 内，VitePress 全局路由拦截会跳过，SPA 跳转由 Layout.vue 里
         // 的 nav-topics-link 点击处理接管；href 用 .html 形式（cleanUrls 未开启，目录形式会 404）
-        text: '<a class="nav-topics-link" href="/pages/topics.html">专题</a>',
+        text:
+          '<a class="nav-topics-link" href="/pages/topics.html">专题</a>' +
+          '<span class="nav-topic-sep" aria-hidden="true"></span>',
         activeMatch: '^/pages/topics',
-        items: topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
+        items: [
+          ...topics.map((t) => ({ text: t.label, link: `/articles/${t.dir}/` })),
+          // 末尾一项带上分隔线，作为「全部专题」入口
+          { text: '<span class="nav-topic-all">全部专题 →</span>', link: '/pages/topics.html' },
+        ],
       },
       // 路径沿用 /pages/tags（原标签页），页面内容已改造为「归档」
       { text: '归档', link: '/pages/tags' },

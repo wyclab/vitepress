@@ -1447,7 +1447,10 @@ html {
   background: transparent;
 }
 
-/* ============ 专题页（卡片内自带「最近更新」） ============ */
+/* ============ 专题页（重写版：结构平铺，动画极简） ============
+   设计原则：卡片内没有叠层链接、没有透明覆盖层、封面零动画。
+   hover 反馈只有卡片整体 translateY + 阴影/描边变化，
+   从结构上杜绝「动画中间帧露出未被遮罩横线」的问题。 */
 .topics-page {
   max-width: 1080px;
   margin: 0 auto;
@@ -1472,29 +1475,30 @@ html {
   color: var(--blog-muted);
 }
 
-/* ---------- 卡片网格 ---------- */
+/* ---------- 卡片网格：3 / 2 / 1 列 ----------
+   必须用 minmax(0, 1fr) 而不是 1fr：1fr 的隐式最小宽度是 auto，
+   卡片内长标题的 min-content 会把某列撑宽、挤窄其他列，导致卡片不等宽。 */
 .topics-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
 @media (max-width: 960px) {
-  .topics-grid { grid-template-columns: repeat(2, 1fr); }
+  .topics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
   .topics-page { padding: 32px 16px 48px; }
   .topics-head h1 { font-size: 26px; }
-  .topics-grid { grid-template-columns: 1fr; gap: 16px; }
+  .topics-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
 
-/* ---------- 卡片 ---------- */
+/* ---------- 卡片：仅布局容器 ---------- */
 .topic-card {
-  position: relative;
+  min-width: 0; /* 配合 minmax(0,1fr)，允许内容收缩而非撑破列宽 */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   border: 1px solid var(--blog-card-border);
   border-radius: 16px;
   background: var(--blog-card-bg);
@@ -1508,53 +1512,47 @@ html {
   border-color: var(--vp-c-brand-3);
 }
 
-/* 整卡可点击的透明链接（铺满卡片），具体链接（标题/文章）靠 z-index 浮在上层 */
-.topic-card-link {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+/* 主链接：封面 + 标题/简介 + 篇数，整块点击进专题首页 */
+.topic-card-main {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 
-/* 封面区：图片 + 向下渐变过渡到卡片底色 */
+/* ---------- 封面区（静止，无任何动画） ---------- */
 .topic-cover-wrap {
   position: relative;
   aspect-ratio: 5 / 3;
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
 }
 
 .topic-cover {
   position: absolute;
   inset: 0;
-  overflow: hidden;
   background-size: cover;
   background-position: center;
   opacity: 0.85;
-  filter: saturate(0.65) brightness(1.08);
-  transition: transform 0.4s ease, opacity 0.25s ease, filter 0.25s ease;
+  filter: saturate(0.7) brightness(1.05);
 }
 
-.topic-card:hover .topic-cover {
-  transform: scale(1.05);
-  opacity: 1;
-  filter: saturate(0.9) brightness(1.05);
-}
-
-/* 封面 → 卡片底色的渐变过渡，保证下方文字在亮/暗主题下都可读 */
+/* 封面底部渐变，过渡到卡片底色，保证压在图上的文字可读 */
 .topic-shade {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    transparent 25%,
-    color-mix(in srgb, var(--blog-card-bg) 70%, transparent) 58%,
-    var(--blog-card-bg) 86%
+    transparent 30%,
+    color-mix(in srgb, var(--blog-card-bg) 62%, transparent) 62%,
+    var(--blog-card-bg) 88%
   );
 }
 
-/* 标题 / 简介压在封面底部 */
 .topic-info {
   position: absolute;
   inset: auto 0 0 0;
-  padding: 0 20px 14px;
+  padding: 0 20px 12px;
 }
 
 .topic-title {
@@ -1570,44 +1568,38 @@ html {
   font-size: 13px;
   line-height: 1.5;
   color: var(--blog-text);
-  /* 默认一行，悬停展开两行 */
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.topic-card:hover .topic-desc { -webkit-line-clamp: 2; }
-
-/* ---------- 卡片下半部分：篇数 + 该专题最近更新的文章 ---------- */
-.topic-body {
-  padding: 12px 20px 16px;
-  background: var(--blog-card-bg);
-}
+/* ---------- 篇数 / 最近更新日期 ---------- */
+.topic-body { padding: 12px 20px 4px; }
 
 .topic-meta {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 12px;
   color: var(--blog-muted);
 }
 
 .topic-meta-dot { opacity: 0.6; }
 
-/* 最近更新的那篇文章：小红点 + 标题 + 日期 */
+/* ---------- 该专题最近更新的一篇文章（卡片底部） ---------- */
 .topic-latest {
-  position: relative;
-  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 8px 14px 14px;
   padding: 8px 10px;
   font-size: 13px;
   border: 1px solid var(--blog-card-border);
   border-radius: 10px;
   background: var(--blog-pill-bg);
+  text-decoration: none;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -1616,7 +1608,7 @@ html {
   background: var(--vp-c-brand-soft);
 }
 
-/* 小红点 + 呼吸扩散动画 */
+/* 小红点 + 呼吸扩散（只作用于 7px 小点，不会引起周边重绘问题） */
 .topic-latest-dot {
   position: relative;
   flex-shrink: 0;
@@ -1646,7 +1638,6 @@ html {
   flex: 1;
   min-width: 0;
   color: var(--blog-title);
-  text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1655,20 +1646,20 @@ html {
 
 .topic-latest:hover .topic-latest-title { color: var(--vp-c-brand-1); }
 
-/* NEW 小角标 */
 .topic-latest-badge {
   flex-shrink: 0;
-  padding: 1px 5px;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--blog-dot-red);
   border: 1px solid color-mix(in srgb, var(--blog-dot-red) 45%, transparent);
   border-radius: 5px;
+  padding: 1px 5px;
+  line-height: 1.4;
 }
 
 .topic-latest-empty {
-  margin: 0;
+  margin: 8px 14px 14px;
   padding: 8px 10px;
   font-size: 13px;
   color: var(--blog-muted);
@@ -1677,15 +1668,61 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .topic-card { transition: none; }
+  .topic-card:hover { transform: none; }
   .topic-latest-dot::after { animation: none; }
 }
 
-
-/* ============ 导航「专题」可点击（下拉保留） ============ */
+/* ============ 导航「专题」：文字 + 竖线 + 下拉 ============ */
 /* VPFlyout 的 button 用 v-html 渲染 text，锚点需还原为普通导航文字样式 */
 .VPFlyout .button a,
 .VPNavScreenMenuGroup .button-text a {
   color: inherit;
   font: inherit;
   text-decoration: none;
+}
+
+/* 「专题」两个字的容器：与相邻导航项完全同款（普通文字，不做按钮） */
+.nav-topics-link {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: color 0.25s;
+}
+
+/* 竖线分隔符：把「专题」文字与右侧下拉箭头分开 */
+.nav-topic-sep {
+  display: inline-block;
+  width: 1px;
+  height: 11px;
+  margin: 0 7px 0 8px;
+  background: var(--vp-c-divider);
+  vertical-align: middle;
+  transition: background-color 0.25s;
+}
+
+/* 悬停 / 展开时：文字与竖线一起提亮，作为整块的反馈 */
+.VPFlyout:hover .nav-topic-sep,
+.VPFlyout .button[aria-expanded='true'] .nav-topic-sep {
+  background: color-mix(in srgb, var(--vp-c-brand-1) 45%, transparent);
+}
+
+/* 间距已由竖线的 margin 承担，箭头紧贴竖线，整体更紧凑 */
+.VPFlyout .button .text-icon {
+  margin-left: 0;
+  font-size: 10px;
+}
+
+/* ---------- 下拉末尾「全部专题」：上分隔线 + 品牌色 ---------- */
+.VPFlyout .menu .VPMenu .items > .VPMenuLink:last-child {
+  margin: 6px -0.75rem 0;
+  padding: 8px 0.75rem 0;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.nav-topic-all {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
 }
