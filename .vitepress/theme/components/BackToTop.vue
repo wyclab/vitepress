@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useData } from 'vitepress'
+import { useLayout } from 'vitepress/theme'
 
 const { frontmatter } = useData()
+const { hasSidebar } = useLayout()
 
 const progress = ref(0)
 const visible = ref(false)
@@ -55,6 +57,7 @@ onBeforeUnmount(() => {
     <button
       v-if="visible && !isHome"
       class="back-to-top"
+      :class="{ 'has-sidebar': hasSidebar }"
       type="button"
       :title="`回到顶部（已阅读 ${progress}%）`"
       :aria-label="`回到顶部，已阅读 ${progress}%`"
@@ -172,9 +175,15 @@ onBeforeUnmount(() => {
   transform: translateY(12px);
 }
 
-/* 移动端：回到顶部已并入 MobileNav 悬浮面板（三个图标按钮统一风格），此处隐藏 */
+/* 移动端适配：有侧边栏时由 MobileNav 接管，无侧边栏时保留 BackToTop */
 @media (max-width: 768px) {
   .back-to-top {
+    right: 16px;
+    bottom: 20px;
+    width: 46px;
+    height: 46px;
+  }
+  .back-to-top.has-sidebar {
     display: none;
   }
 }

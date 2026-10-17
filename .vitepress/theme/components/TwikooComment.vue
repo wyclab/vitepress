@@ -70,8 +70,8 @@ function init() {
       if (!twikoo || !container.value) return
       twikoo.init({
         envId,
-        el: '#twikoo',
-        path: window.location.pathname, // 区分不同页面/文章的评论
+        el: container.value,
+        path: route.path, // 区分不同页面/文章的评论，响应式路由更可靠
         lang: 'zh-CN',
       })
     })

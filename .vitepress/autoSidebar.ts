@@ -118,9 +118,13 @@ export function buildTopicSidebar(topicDir: string, categories: CategoryDef[], e
         const oa = a.order ?? Number.MAX_SAFE_INTEGER
         const ob = b.order ?? Number.MAX_SAFE_INTEGER
         if (oa !== ob) return oa - ob
-        if (a.date && b.date) return a.date < b.date ? 1 : -1 // 新的在前
-        if (a.date) return -1
-        if (b.date) return 1
+        if (a.date && b.date) {
+          if (a.date !== b.date) return a.date < b.date ? 1 : -1 // 新的在前
+        } else if (a.date) {
+          return -1
+        } else if (b.date) {
+          return 1
+        }
         return a.text.localeCompare(b.text, 'zh-CN')
       })
 

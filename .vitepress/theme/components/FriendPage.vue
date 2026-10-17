@@ -10,9 +10,12 @@ const desc = computed(() => friendPage.value.desc || '收集一些喜欢的站�
 const defaultAvatar = computed(() => friendPage.value.defaultAvatar || '/logo.png')
 
 const friends = computed(() => frontmatter.value.friends || [])
+const friendTemplate = computed(() => frontmatter.value.friendTemplate || null)
+const friendFormat = computed(() => frontmatter.value.friendFormat || [])
 
 // ---------- 工具 ----------
 const keyword = ref('')
+const copied = ref(false)
 
 const normalize = (s) => String(s || '').trim()
 const hostOf = (url) => {
@@ -50,6 +53,25 @@ const onAvatarError = (e) => {
   if (el.dataset.fallbackApplied !== 'true') {
     el.dataset.fallbackApplied = 'true'
     el.src = defaultAvatar.value
+  }
+}
+
+// 复制配置示例
+function copyYaml() {
+  const t = friendTemplate.value
+  if (!t) return
+  const yamlText = `- name: ${t.name || '你的站点名称'}
+  url: ${t.url || 'https://example.com'}
+  desc: ${t.description || '站点描述'}
+  avatar: ${t.avatar || 'https://example.com/avatar.png'}`
+  try {
+    navigator.clipboard?.writeText(yamlText)
+    copied.value = true
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch {
+    /* ignore */
   }
 }
 </script>
@@ -103,6 +125,60 @@ const onAvatarError = (e) => {
       <div class="friend-empty-emoji">🧩</div>
       <p>没有匹配的友链</p>
       <p>试试换个关键词，或检查 frontmatter 配置。</p>
+    </div>
+
+    <!-- 申请友链区块 -->
+    <div v-if="friendTemplate || friendFormat.length" class="friend-apply">
+      <div class="friend-apply-head">
+        <h2>申请友链</h2>
+        <span>欢迎互换友链</span>
+      </div>
+      <div class="friend-apply-grid">
+        <!-- 本站信息 -->
+        <div v-if="friendTemplate" class="friend-apply-col">
+          <div class="friend-self-card">
+            <div class="friend-avatar">
+              <img :src="friendTemplate.avatar || defaultAvatar" :alt="friendTemplate.name" />
+            </div>
+            <div class="friend-card-info">
+              <h3>{{ friendTemplate.name }}</h3>
+              <p>{{ friendTemplate.description }}</p>
+            </div>
+          </div>
+          <div class="friend-meta-list">
+            <div class="friend-meta-item">
+              <span class="friend-meta-label">本站链接</span>
+              <a :href="friendTemplate.url" target="_blank" rel="noopener" class="friend-meta-value">{{ friendTemplate.url }}</a>
+            </div>
+            <div v-if="friendTemplate.email" class="friend-meta-item">
+              <span class="friend-meta-label">联系邮箱</span>
+              <span class="friend-meta-text">{{ friendTemplate.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 申请格式要求 -->
+        <div v-if="friendFormat.length" class="friend-apply-col friend-format-col">
+          <div v-for="(item, idx) in friendFormat" :key="idx" class="friend-meta-item">
+            <span class="friend-meta-label">{{ item.label }}</span>
+            <span class="friend-meta-text">{{ item.value }}</span>
+          </div>
+        </div>
+
+        <!-- YAML 代码示例 -->
+        <div v-if="friendTemplate" class="friend-apply-col">
+          <div class="friend-example-head">
+            <span>YAML 格式示例</span>
+            <button type="button" class="friend-copy-btn" @click="copyYaml">
+              {{ copied ? '已复制' : '复制配置' }}
+            </button>
+          </div>
+          <pre class="friend-code"><code>- name: {{ friendTemplate.name || 'wyclab' }}
+  url: {{ friendTemplate.url || 'https://wyclab.com' }}
+  desc: {{ friendTemplate.description || '无用处实验室' }}
+  avatar: {{ friendTemplate.avatar || 'https://wyclab.com/favicon/android-chrome-512x512.png' }}</code></pre>
+        </div>
+      </div>
     </div>
   </div>
 </template>

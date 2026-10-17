@@ -3,7 +3,7 @@ import path from 'node:path'
 import { defineConfig } from 'vitepress'
 import type { Plugin } from 'vite'
 import { buildTopicSidebar } from './autoSidebar.ts'
-import { collectDrafts, isDraftFile, isDraftFlag, walkMarkdown } from './draft.ts'
+import { collectDrafts, isDraftFile, isDraftFlag, parseFrontmatter, walkMarkdown } from './draft.ts'
 import { getGitTimestamp } from './gitTimestamp.mjs'
 import { topics } from './topics.ts'
 
@@ -20,18 +20,20 @@ const draftPaths = excludeDrafts ? collectDrafts(process.cwd()) : []
 // ---------- 中文搜索分词 ----------
 // VitePress 本地搜索（minisearch）默认按空格/标点切词，中文整段会被当成一个 token，
 // 且默认无 prefix/fuzzy，导致「正文中间的词搜不到」。
-// 这里自定义 tokenize：中文按相邻两字切 bigram，英文/数字保留完整词，配合 prefix/fuzzy 实现中文可搜索。
+// 这里自定义 tokenize：中文切单字与相邻两字 bigram（确保词首/词中/词尾单字及双字均能被前缀或精确检索命中），
+// 英文/数字保留完整词，配合 prefix/fuzzy 实现中文可搜索。
 function chineseFriendlyTokenize(text: string): string[] {
   const tokens: string[] = []
   // 切成「连续中文」或「连续英文/数字」两块
   const segments = text.match(/[\u4e00-\u9fff]+|[A-Za-z0-9]+/g) ?? []
   for (const seg of segments) {
     if (/[\u4e00-\u9fff]/.test(seg)) {
-      // 中文：bigram（相邻两字一组）；单字则保留单字
-      if (seg.length === 1) {
-        tokens.push(seg)
-      } else {
-        for (let i = 0; i < seg.length - 1; i++) tokens.push(seg.slice(i, i + 2))
+      // 中文：单字与相邻两字（bigram）都加入，确保词首、词中、词尾单字及双字均能被前缀或精确检索命中
+      for (let i = 0; i < seg.length; i++) {
+        tokens.push(seg[i])
+        if (i < seg.length - 1) {
+          tokens.push(seg.slice(i, i + 2))
+        }
       }
     } else {
       // 英文/数字：小写后作为完整词
@@ -157,26 +159,6 @@ function injectArticleMeta(pageData: any, cfg: any) {
 }
 
 // ---------- RSS 生成（构建结束时输出 feed.xml） ----------
-function parseFrontmatter(content: string): Record<string, any> {
-  const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
-  const fm: Record<string, any> = {}
-  if (!m) return fm
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^([\w-]+):\s*(.*)$/)
-    if (!kv) continue
-    const [, key, value] = kv
-    if (value.startsWith('[') && value.endsWith(']')) {
-      fm[key] = value
-        .slice(1, -1)
-        .split(',')
-        .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
-        .filter(Boolean)
-    } else {
-      fm[key] = value.replace(/^['"]|['"]$/g, '')
-    }
-  }
-  return fm
-}
 
 // 统计全站文章正文总字数（与 RSS 同口径：过滤 index 页与草稿）
 function calcTotalWords(srcDir: string): number {

@@ -24,9 +24,16 @@ function onNavTopicsClick(e) {
 }
 
 // 滚动时给 <html> 挂 nav-floating，驱动顶部导航从「透明全宽」切换为「悬浮圆角区块」。
-// 阈值取 8px，避免轻微回弹就触发形变。
+// 阈值取 8px，避免轻微回弹就触发形变；配合 rAF 节流减轻重排压力。
+let navTicking = false
 function syncNavState() {
-  document.documentElement.classList.toggle('nav-floating', window.scrollY > 8)
+  if (!navTicking) {
+    navTicking = true
+    window.requestAnimationFrame(() => {
+      document.documentElement.classList.toggle('nav-floating', window.scrollY > 8)
+      navTicking = false
+    })
+  }
 }
 onMounted(() => {
   document.addEventListener('click', onNavTopicsClick, true)

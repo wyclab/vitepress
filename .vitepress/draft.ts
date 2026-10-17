@@ -25,14 +25,25 @@ export function isDraftFlag(value: unknown): boolean {
   return false
 }
 
-/** 轻量 frontmatter 解析：只取顶层 `key: value`，值统一为字符串（去掉首尾引号） */
-export function parseFrontmatter(content: string): Record<string, string> {
+/** 轻量 frontmatter 解析：提取顶层 key: value，支持逗号分隔的数组语法 [a, b] */
+export function parseFrontmatter(content: string): Record<string, any> {
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
-  const fm: Record<string, string> = {}
+  const fm: Record<string, any> = {}
   if (!m) return fm
   for (const line of m[1].split('\n')) {
     const kv = line.match(/^([\w-]+):\s*(.*)$/)
-    if (kv) fm[kv[1]] = kv[2].trim().replace(/^['"]|['"]$/g, '')
+    if (!kv) continue
+    const [, key, rawVal] = kv
+    const val = rawVal.trim()
+    if (val.startsWith('[') && val.endsWith(']')) {
+      fm[key] = val
+        .slice(1, -1)
+        .split(',')
+        .map((s) => s.trim().replace(/^['"]|['"]$/g, ''))
+        .filter(Boolean)
+    } else {
+      fm[key] = val.replace(/^['"]|['"]$/g, '')
+    }
   }
   return fm
 }
