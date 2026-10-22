@@ -4,23 +4,6 @@ layout: page
 friendPage:
   desc: 欢迎交换友链：只收录稳定更新、内容原创、无恶意广告的站点。联系我admin@wyclab.com
   defaultAvatar: https://wyclab.com/favicon/android-chrome-512x512.png
-friendTemplate:
-  name: wyclab
-  description: 无用处实验室
-  url: https://wyclab.com
-  friendLink: https://wyclab.com/pages/friend
-  avatar: https://wyclab.com/favicon/android-chrome-512x512.png
-  logo: https://wyclab.com/favicon/android-chrome-512x512.png
-  email: admin@wyclab.com
-friendFormat:
-  - label: 站点名称
-    value: wyclab
-  - label: 站点地址
-    value: https://wyclab.com
-  - label: 站点描述
-    value: 前端开发工程师 | 技术博主
-  - label: 头像地址
-    value: https://github.com/wyclab.png
 friends:
   - name: 高性价比人生指南
     url: https://eternity4719.github.io/HowToLiveBetter/
