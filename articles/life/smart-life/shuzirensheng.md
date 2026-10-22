@@ -2,6 +2,7 @@
 title: 数据存储
 date: 2026-01-08
 category: 生活指南
+description: '数据宝贵，记忆无价'
 tags: [智能生活]
 order: 5
 ---

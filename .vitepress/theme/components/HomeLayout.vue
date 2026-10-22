@@ -24,6 +24,8 @@ const tagCounts = computed(() => {
 
 // ---------- 最近更新轮播 ----------
 // 按「更新时间」（git 最后提交时间）排序，轮播最近变化的文章
+// 过滤空描述只为保证卡片排版：posts.data.js 已用正文首段给 description 兜底，
+// 因此缺 frontmatter description 的文章不会再被误过滤掉。
 const recentlyUpdated = computed(() =>
   [...posts]
     .filter((p) => p.description)
@@ -281,7 +283,7 @@ const latest = computed(() => posts.slice(0, 8))
           <a v-for="p in latest" :key="p.url" class="article-card card" :href="withBase(p.url)">
             <div class="article-card-date">{{ p.date }}</div>
             <h3 class="article-card-title">{{ p.title }}</h3>
-            <p class="article-card-desc">{{ p.description || p.excerpt }}</p>
+            <p class="article-card-desc">{{ p.description }}</p>
             <div class="article-card-tags">
               <span class="article-tag" v-for="t in p.tags" :key="t">{{ t }}</span>
             </div>
