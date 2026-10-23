@@ -1495,3 +1495,34 @@ html {
   font-weight: 600;
   color: var(--vp-c-brand-1);
 }
+
+/* ---------- 移动端菜单（VPNavScreen）里的「专题」分组 ---------- */
+/* 该分组在 Layout.vue 中已默认展开，这里只处理默认样式带来的两处错觉 */
+/* 1. 竖线是为桌面「文字 + 竖线 + 箭头」准备的，移动端菜单里只剩一条悬空残线 */
+.VPNavScreenMenuGroup .nav-topic-sep {
+  display: none;
+}
+
+/* 2. 展开态图标是「+ 旋转 45°」= ×，容易被误认成关闭按钮（菜单右上角已有一个 ×），
+      改成向下 / 向上的箭头：折叠时朝下，展开时朝上 */
+.VPNavScreenMenuGroup .button .button-icon {
+  display: none;
+}
+
+.VPNavScreenMenuGroup .button::after {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin: 0 3px 3px 0;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.25s;
+}
+
+.VPNavScreenMenuGroup.open .button::after {
+  margin-bottom: 0;
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
