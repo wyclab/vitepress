@@ -91,16 +91,4 @@ export const topics: TopicDef[] = [
       { dir: 'management-art', label: '管理艺术' },
     ],
   },
-  {
-    dir: 'notes',
-    label: '随笔',
-    description: '日记、读书、游记与建站过程中的碎碎念',
-    cover: '/topics/notes.jpg',
-    categories: [
-      { dir: 'diary', label: '日记', groupByYear: true },
-      { dir: 'books', label: '读书笔记' },
-      { dir: 'journal', label: '游记' },
-      { dir: 'website', label: '建站笔记' },
-    ],
-  },
 ]
