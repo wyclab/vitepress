@@ -244,8 +244,8 @@ ${items}
 }
 
 // ---------- 站点信息（按需修改） ----------
-const siteTitle = '无用处'
-const siteDescription = '无用处实验室，看似无用，实则真的无用。'
+const siteTitle = '无用知识库'
+const siteDescription = '碎片化知识存储库，AI浓度较高，请注意甄别'
 // 站点域名：RSS / sitemap 等绝对链接的唯一来源，换域名只改这一处
 const siteOrigin = 'https://wyclab.com'
 // 全站文章总字数（config 加载时扫描一次；dev 下增删文章会触发 sidebarAutoRestart 重启后自动重算）

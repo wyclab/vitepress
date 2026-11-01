@@ -12,8 +12,8 @@ const socials = [
   { name: 'RSS订阅', link: '/feed.xml' },
 ]
 
-const siteTitle = '无用处实验室'
-const siteDesc = '折腾一些好玩的，看似无用，实则真的无用。'
+const siteTitle = '无用知识库'
+const siteDesc = '碎片化知识存储库，AI浓度较高，请注意甄别'
 
 // ---------- 标签统计 ----------
 const tagCounts = computed(() => {
