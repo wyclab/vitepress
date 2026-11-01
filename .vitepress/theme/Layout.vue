@@ -5,6 +5,7 @@ import { useData, useRouter } from 'vitepress'
 import HomeLayout from './components/HomeLayout.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import ArticleHeader from './components/ArticleHeader.vue'
+import TopicIndex from './components/TopicIndex.vue'
 import BackToTop from './components/BackToTop.vue'
 import MobileNav from './components/MobileNav.vue'
 import TwikooComment from './components/TwikooComment.vue'
@@ -89,6 +90,9 @@ onBeforeUnmount(() => {
     </template>
     <template #doc-before>
       <ArticleHeader />
+    </template>
+    <template #doc-footer-before>
+      <TopicIndex />
     </template>
     <template #doc-after>
       <TwikooComment />

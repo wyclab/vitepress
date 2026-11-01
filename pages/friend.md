@@ -25,6 +25,11 @@ friends:
     desc: 让博主们能够在这里共同分享彼此的经验和知识，共同进步。
     avatar: https://www.blogsclub.org/usr/themes/default/favicon.png
     tags: [聚合站]
+  - name: Coverly
+    url: https://cover.mysticstars.cn/
+    desc: 快速创作优雅的博客封面。
+    avatar: https://cover.mysticstars.cn/icon.png
+    tags: [工具]
 ---
 
 <FriendPage />

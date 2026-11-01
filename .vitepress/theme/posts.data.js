@@ -75,6 +75,8 @@ export default createContentLoader('articles/**/*.md', {
           title: p.frontmatter.title || '',
           description: p.frontmatter.description || firstParagraph(abs),
           category: p.frontmatter.category || '',
+          // 手动编排顺序（与自动侧边栏共用同一字段），专题/栏目首页的目录按它排序
+          order: Number(p.frontmatter.order) || 0,
           tags: Array.isArray(p.frontmatter.tags) ? p.frontmatter.tags : [],
           date: formatDate(p.frontmatter.date),
           ts: new Date(p.frontmatter.date).getTime() || 0,
