@@ -1526,3 +1526,41 @@ html {
   margin-top: 3px;
   transform: rotate(-135deg);
 }
+
+/* ============ 正文表格 ============
+   VitePress 默认把 table 设为 display:block 且不限制列宽，
+   中文短单元格（如「西城」「东城」）会被压到只放得下一个字，变成竖排。
+   这里给首列（一般是「区 / 指标 / 术语 / 风险项」这类短标签）加 nowrap，
+   长文本列仍按容器宽度正常换行；超宽表格由 table 自身的 overflow-x 横向滚动。 */
+.vp-doc table {
+  width: 100%;
+}
+
+.vp-doc table th:first-child,
+.vp-doc table td:first-child {
+  white-space: nowrap;
+}
+
+/* 长表格在窄屏下允许横向滚动，同时保持单元格内容不挤压 */
+.vp-doc table th,
+.vp-doc table td {
+  word-break: normal;
+}
+
+/* 手机端：把表格压回屏幕宽度（固定布局 + 允许换行），
+   避免宽表格右侧内容被切在屏幕外、只能靠横向滑动才能看到 */
+@media (max-width: 640px) {
+  .vp-doc table {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    font-size: 0.8125rem;
+  }
+
+  .vp-doc table th,
+  .vp-doc table td {
+    padding: 0.4rem 0.5rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
