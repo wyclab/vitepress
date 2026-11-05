@@ -1,5 +1,5 @@
 <script setup>
-// 移动端悬浮导航面板：参照 log.wyclab.com 的底部悬浮按钮组。
+// 移动端悬浮导航面板：参照 log.667667.xyz 的底部悬浮按钮组。
 // 三个按钮：展开专题导航（侧边栏）、展开本文目录（TOC）、回到顶部。
 // 首页（layout === 'home'）不显示；仅在有侧边栏的页面（/articles/...）显示。
 
@@ -155,7 +155,7 @@ watch(() => route.path, closeToc)
 </template>
 
 <style scoped>
-/* 悬浮面板：仿 log.wyclab.com #z-panel（毛玻璃圆角、竖排图标按钮） */
+/* 悬浮面板：仿 log.667667.xyz #z-panel（毛玻璃圆角、竖排图标按钮） */
 .mnp-panel {
   position: fixed;
   right: 16px;

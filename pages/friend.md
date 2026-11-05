@@ -2,8 +2,8 @@
 title: 链接
 layout: page
 friendPage:
-  desc: 欢迎交换友链：只收录稳定更新、内容原创、无恶意广告的站点。联系我admin@wyclab.com
-  defaultAvatar: https://wyclab.com/favicon/android-chrome-512x512.png
+  desc: 欢迎交换友链：只收录稳定更新、内容原创、无恶意广告的站点。联系我admin@667667.xyz
+  defaultAvatar: https://667667.xyz/favicon/android-chrome-512x512.png
 friends:
   - name: 高性价比人生指南
     url: https://eternity4719.github.io/HowToLiveBetter/

@@ -24,10 +24,10 @@ title: 关于
 
 twikoo 的后端支持免费部署在 EdgeOne，详见 [EdgeOne Makers 部署](https://twikoo.js.org/backend.html#edgeone-makers-%E9%83%A8%E7%BD%B2)。后端部署之后，博客前端引用，直接交给小弟 WorkBuddy。
 
-> 给网站的文章页面和关于页面、友链页面增加评论区，使用 twikoo，这是它的文档 [twikoo.js.org](https://twikoo.js.org/)。已经建立好了后端 twikoo.wyclab.com。
+> 给网站的文章页面和关于页面、友链页面增加评论区，使用 twikoo，这是它的文档 [twikoo.js.org](https://twikoo.js.org/)。已经建立好了后端 twikoo.667667.xyz。
 
 ## 联系我
 
 - GitHub：[@wyclab](https://github.com/wyclab)
 - RSS：[订阅本站](/feed.xml)
-- E-mail: admin@wyclab.com
+- E-mail: admin@667667.xyz

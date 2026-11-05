@@ -247,7 +247,7 @@ ${items}
 const siteTitle = '无用知识库'
 const siteDescription = '碎片化知识存储库，AI浓度较高，请注意甄别'
 // 站点域名：RSS / sitemap 等绝对链接的唯一来源，换域名只改这一处
-const siteOrigin = 'https://wyclab.com'
+const siteOrigin = 'https://667667.xyz'
 // 全站文章总字数（config 加载时扫描一次；dev 下增删文章会触发 sidebarAutoRestart 重启后自动重算）
 const totalWords = calcTotalWords(process.cwd())
 

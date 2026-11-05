@@ -19,19 +19,19 @@ tags: [企业观察, 华为, 汽车]
 
 以下为部分截图：
 
-![image-20261009211251432](https://static.wyclab.com/image-20261009211251432261009.png)
+![image-20261009211251432](https://static.667667.xyz/image-20261009211251432261009.png)
 
-![image-20261009211523690](https://static.wyclab.com/image-20261009211523690261009.png)
+![image-20261009211523690](https://static.667667.xyz/image-20261009211523690261009.png)
 
 
 
-![image-20261009211619457](https://static.wyclab.com/image-20261009211619457261009.png)
+![image-20261009211619457](https://static.667667.xyz/image-20261009211619457261009.png)
 
-![image-20261009211635034](https://static.wyclab.com/image-20261009211635034261009.png)
+![image-20261009211635034](https://static.667667.xyz/image-20261009211635034261009.png)
 
-![image-20261009212139850](https://static.wyclab.com/image-20261009212139850261009.png)
+![image-20261009212139850](https://static.667667.xyz/image-20261009212139850261009.png)
 
-![image-20261009212359034](https://static.wyclab.com/image-20261009212359034261009.png)
+![image-20261009212359034](https://static.667667.xyz/image-20261009212359034261009.png)
 
 如果这个事情最后不了了之，那就是把法律和人民按在地上摩擦。
 

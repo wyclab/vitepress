@@ -15,7 +15,7 @@ function loadTwikooScript() {
   if (!twikooPromise) {
     twikooPromise = new Promise((resolve, reject) => {
       const s = document.createElement('script')
-      // 前端版本需与后端 twikoo.wyclab.com 保持一致（当前 2.0.9）
+      // 前端版本需与后端 twikoo.667667.xyz 保持一致（当前 2.0.9）
       // CDN 用 npmmirror（国内镜像，站点已 ICP 备案，国内访问为主）
       // 备选：https://cdn.jsdelivr.net/npm/twikoo@2.0.9/dist/twikoo.min.js
       s.src = 'https://registry.npmmirror.com/twikoo/2.0.9/files/dist/twikoo.min.js'
@@ -48,7 +48,7 @@ const { page, frontmatter, isDark } = useData()
 const route = useRoute()
 
 // 自托管后端地址
-const envId = 'https://twikoo.wyclab.com'
+const envId = 'https://twikoo.667667.xyz'
 
 const container = ref(null)
 

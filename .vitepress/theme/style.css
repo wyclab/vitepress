@@ -24,7 +24,7 @@
   --vp-nav-backdrop-filter: blur(12px) saturate(1.6);
   --vp-nav-divider-color: rgba(0, 0, 0, 0.06);
 
-  /* 移动端悬浮导航面板（MobileNav.vue）：毛玻璃背景，仿 log.wyclab.com */
+  /* 移动端悬浮导航面板（MobileNav.vue）：毛玻璃背景，仿 log.667667.xyz */
   --mnp-panel-bg: rgba(255, 255, 255, 0.55);
   --mnp-panel-hover: rgba(255, 255, 255, 0.85);
   --mnp-drawer-bg: rgba(255, 255, 255, 0.9);
