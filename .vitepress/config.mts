@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vitepress'
+import type { HeadConfig } from 'vitepress'
 import type { Plugin } from 'vite'
 import { buildTopicSidebar } from './autoSidebar.ts'
 import { collectDrafts, isDraftFile, isDraftFlag, parseFrontmatter, walkMarkdown } from './draft.ts'
@@ -251,6 +252,22 @@ const siteOrigin = 'https://667667.xyz'
 // 全站文章总字数（config 加载时扫描一次；dev 下增删文章会触发 sidebarAutoRestart 重启后自动重算）
 const totalWords = calcTotalWords(process.cwd())
 
+// ---------- 自建统计（Umami，log.667667.xyz） ----------
+// 仅生产构建注入，避免本地 dev 的每次刷新污染统计数据。
+// 想本地验证：ANALYTICS_ENABLE=1 bun run docs:dev
+const UMAMI_SRC = 'https://log.667667.xyz/script.js'
+const UMAMI_WEBSITE_ID = 'e53335ba-a5c6-449e-9ad8-1050b20810d2'
+const enableAnalytics = process.env.NODE_ENV === 'production' || process.env.ANALYTICS_ENABLE === '1'
+
+function buildAnalyticsHead(): HeadConfig[] {
+  if (!enableAnalytics) return []
+  return [
+    // defer：不阻塞正文渲染；Umami 自带 SPA 路由监听（pushState/replaceState），
+    // 站内跳转的 pageview 无需额外埋点
+    ['script', { defer: '', src: UMAMI_SRC, 'data-website-id': UMAMI_WEBSITE_ID }],
+  ]
+}
+
 export default defineConfig({
   lang: 'zh-CN',
   title: siteTitle,
@@ -272,6 +289,8 @@ export default defineConfig({
     ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }],
     // RSS
     ['link', { rel: 'alternate', type: 'application/rss+xml', title: siteTitle, href: '/feed.xml' }],
+    // 自建统计（Umami，仅生产构建）
+    ...buildAnalyticsHead(),
   ],
 
   themeConfig: {
