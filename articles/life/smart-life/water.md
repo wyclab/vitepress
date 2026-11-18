@@ -13,7 +13,7 @@ order: 2
 
 
 
-![IMG_9992](/images/IMG_9992.png)
+![净水系统总体图](https://static.667667.xyz/2026/2026-11-18-dnia3q.webp)
 
 ## 1. 前置过滤器（第一道防线：粗滤）
 
