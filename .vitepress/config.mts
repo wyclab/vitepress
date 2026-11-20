@@ -329,6 +329,28 @@ export default defineConfig({
     search: {
       provider: 'local',
       options: {
+        // 本站 ArticleHeader.vue 会自动把 frontmatter.title 渲染为页面 <h1>，
+        // 多数文章正文里不写 `# 标题`（甚至全文没有小标题）。
+        // VitePress 默认只按渲染出的 HTML <h1>~<h6> 切片并丢弃首个标题前的内容，
+        // 导致大量文章标题搜不到、无小标题的文章整篇漏出索引。
+        // 这里通过 _render 把缺失的 frontmatter.title 补成带空锚点的 <h1> 进入索引。
+        async _render(src, env, md) {
+          const html = await md.renderAsync(src, env)
+          if (env.frontmatter?.search === false) return ''
+          if (env.frontmatter?.layout === 'home' || env.frontmatter?.layout === 'page') return html
+          const fmTitle = typeof env.frontmatter?.title === 'string' ? env.frontmatter.title.trim() : ''
+          if (!fmTitle) return html
+          const firstH1Match = html.match(/^\s*<h1\b[^>]*>([\s\S]*?)<\/h1>/i)
+          const firstH1Text = firstH1Match
+            ? firstH1Match[1].replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, '').replace(/<[^>]*>/g, '').trim()
+            : ''
+          const normalize = (s: string) => s.replace(/\s+/g, '')
+          if (!firstH1Match || normalize(firstH1Text) !== normalize(fmTitle)) {
+            const safeTitle = fmTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            return `<h1>${safeTitle}<a href="#"></a></h1>\n${html}`
+          }
+          return html
+        },
         miniSearch: {
           options: {
             tokenize: chineseFriendlyTokenize,

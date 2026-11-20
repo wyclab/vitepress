@@ -16,6 +16,9 @@ export interface SimNode {
   vy: number
   fx: number | null
   fy: number | null
+  /** 柔和呼吸漂浮相位（确定性分配，保证每个节点有独立舒缓节奏） */
+  driftPhase: number
+  driftSpeed: number
   /** 当前帧的视觉不透明度（用于悬停/搜索时的平滑淡入淡出） */
   renderAlpha: number
   article?: GraphArticle
@@ -45,17 +48,17 @@ export interface GraphBuildOptions {
 }
 
 export interface ForceParams {
-  centerStrength: number // 0.1 - 1.5, default 0.55
-  repelStrength: number // 2 - 24, default 11
-  linkStrength: number // 0.2 - 2.0, default 1.0
-  linkDistance: number // 50 - 220, default 105
+  centerStrength: number // 0.02 - 1.0, default 0.1
+  repelStrength: number // 4 - 36, default 20
+  linkStrength: number // 0.05 - 1.5, default 0.2
+  linkDistance: number // 60 - 260, default 170
 }
 
 export const DEFAULT_FORCES: ForceParams = {
-  centerStrength: 0.55,
-  repelStrength: 11,
-  linkStrength: 1.0,
-  linkDistance: 105,
+  centerStrength: 0.1,
+  repelStrength: 20,
+  linkStrength: 0.2,
+  linkDistance: 170,
 }
 
 export interface TopicPalette {
@@ -117,10 +120,10 @@ export function buildGraph(
   const visibleArticles = data.articles.filter((a) => options.enabledTopics.has(a.topicDir))
   const articleById = new Map(visibleArticles.map((a) => [a.id, a]))
 
-  // 1. 预计算 6 个专题的星团初始锚点（均匀分布在圆周上）
+  // 1. 预计算各专题星团的舒展初始锚点（大圆环分布，避免初始拥挤）
   const activeTopics = data.topics.filter((t) => options.enabledTopics.has(t.dir))
   const topicAnchors = new Map<string, { x: number; y: number }>()
-  const ringR = activeTopics.length <= 1 ? 0 : 210
+  const ringR = activeTopics.length <= 1 ? 0 : 340
   activeTopics.forEach((t, idx) => {
     const angle = (idx / activeTopics.length) * Math.PI * 2 - Math.PI / 2
     topicAnchors.set(t.dir, {
@@ -137,6 +140,7 @@ export function buildGraph(
       const id = `topic:${topic.dir}`
       const prev = prevPositions?.get(id)
       const anchor = topicAnchors.get(topic.dir) || { x: 0, y: 0 }
+      const phase = hashUnit(id) * Math.PI * 2
       nodeMap.set(id, {
         id,
         type: 'topic',
@@ -150,13 +154,15 @@ export function buildGraph(
         vy: 0,
         fx: null,
         fy: null,
+        driftPhase: phase,
+        driftSpeed: 0.35 + hashUnit(`${id}:s`) * 0.25,
         renderAlpha: 1,
         topic,
       })
     }
   }
 
-  // 3. 创建文章节点（按专题星团做黄金角螺旋初始分布）
+  // 3. 创建文章节点（按专题星团做宽敞的黄金角螺旋分布）
   const topicCounters = new Map<string, number>()
   const goldenAngle = Math.PI * (3 - Math.sqrt(5))
   for (const article of visibleArticles) {
@@ -165,8 +171,8 @@ export function buildGraph(
     const idx = topicCounters.get(article.topicDir) ?? 0
     topicCounters.set(article.topicDir, idx + 1)
 
-    const r = 42 + Math.sqrt(idx + 1) * 24
-    const theta = idx * goldenAngle + hashUnit(article.id) * 0.6
+    const r = 68 + Math.sqrt(idx + 1) * 42
+    const theta = idx * goldenAngle + hashUnit(article.id) * 0.8
 
     nodeMap.set(article.id, {
       id: article.id,
@@ -181,6 +187,8 @@ export function buildGraph(
       vy: 0,
       fx: null,
       fy: null,
+      driftPhase: hashUnit(article.id) * Math.PI * 2,
+      driftSpeed: 0.45 + hashUnit(`${article.id}:s`) * 0.45,
       renderAlpha: 1,
       article,
     })
@@ -202,7 +210,6 @@ export function buildGraph(
       const id = `tag:${tag}`
       const prev = prevPositions?.get(id)
 
-      // 放在关联文章质心附近，并加一点确定性偏置避免完全重叠
       let cx = 0
       let cy = 0
       for (const a of list) {
@@ -215,9 +222,8 @@ export function buildGraph(
       cx /= list.length || 1
       cy /= list.length || 1
       const jitterAngle = hashUnit(id) * Math.PI * 2
-      const jitterR = 26
+      const jitterR = 48
 
-      // 主色取关联最多的专题（备用）
       const topicFreq = new Map<string, number>()
       for (const a of list) topicFreq.set(a.topicDir, (topicFreq.get(a.topicDir) || 0) + 1)
       const dominantTopic =
@@ -236,6 +242,8 @@ export function buildGraph(
         vy: 0,
         fx: null,
         fy: null,
+        driftPhase: hashUnit(id) * Math.PI * 2,
+        driftSpeed: 0.4 + hashUnit(`${id}:s`) * 0.4,
         renderAlpha: 1,
         tagName: tag,
         tagCount: list.length,
@@ -347,7 +355,6 @@ export function buildGraph(
     if (allowedIds && !allowedIds.has(node.id)) continue
     const deg = fullAdj.get(node.id)?.size ?? 0
     if (!options.showOrphans && node.type === 'article' && deg === 0 && !allowedIds) continue
-    // 专题节点如果完全没有文章也不显示
     if (node.type === 'topic' && deg === 0) continue
     finalNodes.push(node)
     finalNodeSet.add(node.id)
@@ -372,11 +379,11 @@ export function buildGraph(
 
   for (const n of finalNodes) {
     if (n.type === 'topic') {
-      n.baseRadius = 9.5 + Math.min(4.5, Math.sqrt(n.degree) * 1.1)
+      n.baseRadius = 9.5 + Math.min(4.5, Math.sqrt(n.degree) * 1.05)
     } else if (n.type === 'tag') {
-      n.baseRadius = 4.6 + Math.min(4.2, Math.sqrt(n.degree) * 1.25)
+      n.baseRadius = 4.6 + Math.min(4.0, Math.sqrt(n.degree) * 1.15)
     } else {
-      n.baseRadius = 5.2 + Math.min(5.5, Math.sqrt(n.degree) * 1.35)
+      n.baseRadius = 5.0 + Math.min(5.0, Math.sqrt(n.degree) * 1.25)
     }
   }
 
@@ -394,22 +401,30 @@ export function buildGraph(
   }
 }
 
-/** 单步力导向物理模拟（Velocity Verlet + 软碰撞 + 温度衰减） */
+/**
+ * 单步力导向物理模拟（仿 Obsidian 舒展星团力学 + 微呼吸动态漂浮）
+ * - repelK 足够强劲，保证节点之间留出充足呼吸空间、绝不堆叠成团
+ * - centerK 轻柔收敛，只防止星团飘离视野而不会把节点压扁
+ * - ambientTime 开启后提供极细腻的微漂浮生命感，连接边随之弹性微动
+ */
 export function stepSimulation(
   nodes: SimNode[],
   edges: SimEdge[],
   params: ForceParams,
   alpha: number,
+  ambientTime = 0,
+  ambientStrength = 0,
 ): void {
   const n = nodes.length
   if (n === 0) return
 
-  const repelK = params.repelStrength * 28
-  const centerK = params.centerStrength * 0.011
-  const linkBaseK = params.linkStrength * 0.055
+  // 强斥力 + 轻向心力：默认 0.1 / 20 / 0.2 / 170 下呈现舒展平衡的星团
+  const repelK = params.repelStrength * 140
+  const centerK = params.centerStrength * 0.009
+  const linkBaseK = params.linkStrength * 0.095
   const baseDist = params.linkDistance
 
-  // 1. 节点间斥力 + 软碰撞防重叠
+  // 1. 节点间库仑斥力 + 宽敞软碰撞间距
   for (let i = 0; i < n; i++) {
     const a = nodes[i]
     for (let j = i + 1; j < n; j++) {
@@ -418,19 +433,20 @@ export function stepSimulation(
       let dy = b.y - a.y
       let distSq = dx * dx + dy * dy
       if (distSq < 0.01) {
-        dx = (hashUnit(a.id + b.id) - 0.5) * 2 || 0.5
-        dy = (hashUnit(b.id + a.id) - 0.5) * 2 || -0.5
+        dx = (hashUnit(a.id + b.id) - 0.5) * 4 || 1
+        dy = (hashUnit(b.id + a.id) - 0.5) * 4 || -1
         distSq = dx * dx + dy * dy
       }
       const dist = Math.sqrt(distSq)
 
-      // 专题节点之间斥力更大，让星团清晰舒展
+      // 专题节点之间斥力更大，让 6 个主题星团泾渭分明
       let pairScale = 1
-      if (a.type === 'topic' && b.type === 'topic') pairScale = 4.2
-      else if (a.type === 'topic' || b.type === 'topic') pairScale = 1.55
+      if (a.type === 'topic' && b.type === 'topic') pairScale = 4.0
+      else if (a.type === 'topic' || b.type === 'topic') pairScale = 1.6
+      else if (a.type === 'tag' && b.type === 'tag') pairScale = 1.25
 
-      const clampedSq = Math.max(distSq, 360)
-      const force = ((repelK * pairScale) / clampedSq) * alpha
+      const clampedSq = distSq + 280
+      const force = Math.min(8, ((repelK * pairScale) / clampedSq) * alpha)
 
       const fx = (dx / dist) * force
       const fy = (dy / dist) * force
@@ -440,10 +456,10 @@ export function stepSimulation(
       b.vx += fx
       b.vy += fy
 
-      // 软碰撞推开，确保视觉上节点不重叠
-      const minGap = a.baseRadius + b.baseRadius + 14
+      // 软碰撞推开，留出清晰阅读间隙
+      const minGap = a.baseRadius + b.baseRadius + 30
       if (dist < minGap) {
-        const push = ((minGap - dist) / dist) * 0.32 * alpha
+        const push = ((minGap - dist) / dist) * 0.36 * alpha
         const px = dx * push
         const py = dy * push
         a.vx -= px
@@ -454,7 +470,7 @@ export function stepSimulation(
     }
   }
 
-  // 2. 边弹簧引力（按关系类型区分弹性系数与理想间距）
+  // 2. 边弹簧引力（按关系类型区分理想间距与弹性）
   for (let i = 0; i < edges.length; i++) {
     const e = edges[i]
     const a = e.source
@@ -466,22 +482,22 @@ export function stepSimulation(
     let targetLen = baseDist
     let k = linkBaseK
     if (e.kind === 'link') {
-      targetLen = baseDist * 0.62
-      k = linkBaseK * 1.9
+      targetLen = baseDist * 0.72
+      k = linkBaseK * 1.7
     } else if (e.kind === 'tag') {
-      targetLen = baseDist * 0.78
-      k = linkBaseK * 1.05
+      targetLen = baseDist * 0.85
+      k = linkBaseK * 0.95
     } else if (e.kind === 'topic') {
-      targetLen = baseDist * 1.08
-      k = linkBaseK * 0.72
+      targetLen = baseDist * 1.18
+      k = linkBaseK * 0.65
     }
 
     const diff = (dist - targetLen) / dist
     const pull = diff * k * alpha
 
-    // 度数越大越稳重（质量感）
-    const wA = 1 / (1 + a.degree * 0.14)
-    const wB = 1 / (1 + b.degree * 0.14)
+    // 度数越大越稳重
+    const wA = 1 / (1 + a.degree * 0.16)
+    const wB = 1 / (1 + b.degree * 0.16)
     const wSum = wA + wB || 1
 
     const fx = dx * pull
@@ -492,9 +508,9 @@ export function stepSimulation(
     b.vy -= fy * (wB / wSum) * 2
   }
 
-  // 3. 向心力 + 阻尼积分
-  const maxSpeed = 22
-  const damping = 0.82
+  // 3. 轻柔向心力 + 呼吸微漂浮 + 阻尼积分
+  const maxSpeed = 24
+  const damping = 0.86
   for (let i = 0; i < n; i++) {
     const node = nodes[i]
     if (node.fx !== null && node.fy !== null) {
@@ -505,10 +521,17 @@ export function stepSimulation(
       continue
     }
 
-    // 孤立节点略强一点向心力，避免飘出视野
-    const gravity = node.degree === 0 ? centerK * 1.85 : centerK
+    const gravity = node.degree === 0 ? centerK * 2.1 : centerK
     node.vx -= node.x * gravity * alpha
     node.vy -= node.y * gravity * alpha
+
+    // 持续的轻柔有机漂浮（节点像星辰般缓缓呼吸，弹簧随之联动）
+    if (ambientStrength > 0) {
+      const t = ambientTime * node.driftSpeed + node.driftPhase
+      const amp = node.type === 'topic' ? ambientStrength * 0.45 : ambientStrength
+      node.vx += Math.cos(t) * amp
+      node.vy += Math.sin(t * 0.83 + 1.1) * amp
+    }
 
     node.vx *= damping
     node.vy *= damping
@@ -536,14 +559,14 @@ export function computeBounds(nodes: SimNode[]): {
   cy: number
 } {
   if (!nodes.length) {
-    return { minX: -100, maxX: 100, minY: -100, maxY: 100, width: 200, height: 200, cx: 0, cy: 0 }
+    return { minX: -200, maxX: 200, minY: -200, maxY: 200, width: 400, height: 400, cx: 0, cy: 0 }
   }
   let minX = Infinity
   let maxX = -Infinity
   let minY = Infinity
   let maxY = -Infinity
   for (const n of nodes) {
-    const pad = n.baseRadius + 24
+    const pad = n.baseRadius + 36
     if (n.x - pad < minX) minX = n.x - pad
     if (n.x + pad > maxX) maxX = n.x + pad
     if (n.y - pad < minY) minY = n.y - pad
@@ -554,8 +577,8 @@ export function computeBounds(nodes: SimNode[]): {
     maxX,
     minY,
     maxY,
-    width: Math.max(120, maxX - minX),
-    height: Math.max(120, maxY - minY),
+    width: Math.max(240, maxX - minX),
+    height: Math.max(240, maxY - minY),
     cx: (minX + maxX) / 2,
     cy: (minY + maxY) / 2,
   }

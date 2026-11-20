@@ -26,7 +26,7 @@ const onlySharedTags = ref(false)
 const showOrphans = ref(true)
 
 const showArrows = ref(true)
-const textFadeThreshold = ref(0.55) // 越低显示越多文字，越高需要放大才显示
+const textFadeThreshold = ref(0.45) // 越低显示越多文字，越高需要放大才显示
 const nodeSizeMultiplier = ref(1.0)
 const lineSizeMultiplier = ref(1.0)
 
@@ -175,13 +175,26 @@ let simAdj = new Map<string, Set<string>>()
 let simNodeById = new Map<string, SimNode>()
 const graphVersion = ref(0) // 用于在图谱重建后触发 selectedNode / searchMatches 重新求值
 
-let simAlpha = 0
+const ALPHA_FLOOR = 0.11 // 永不彻底僵死，保持细腻呼吸漂浮
+const AMBIENT_STRENGTH = 0.065
+const MIN_ZOOM = 0.15
+const MAX_ZOOM = 6.0
+
+let simAlpha = 0.9
+let ambientTime = 0
+let lastFrameTs = 0
+let isTabHidden = false
 let rafId: number | null = null
 let needsRender = false
 
 // 相机状态与平滑缓动目标
-const cam = { x: 0, y: 0, zoom: 1 }
+const cam = { x: 0, y: 0, zoom: 0.72 }
 let camTarget: { x: number; y: number; zoom: number } | null = null
+
+// 光标锚定平滑滚轮缩放目标（同时兼容鼠标滚轮与触控板双指缩放）
+let wheelZoomTarget: number | null = null
+let wheelAnchorScreen = { x: 0, y: 0 }
+let wheelAnchorWorld = { x: 0, y: 0 }
 
 // 指针拖拽 / 缩放 / 双击状态
 let dragNode: SimNode | null = null
@@ -214,7 +227,9 @@ function screenToWorld(sx: number, sy: number): { x: number; y: number } {
 }
 
 function nodeRadius(n: SimNode): number {
-  return n.baseRadius * nodeSizeMultiplier.value
+  // 随缩放次线性变化：缩小时保持清晰可见，放大时避免变成巨大色块
+  const zoomComp = Math.pow(cam.zoom, -0.25)
+  return n.baseRadius * nodeSizeMultiplier.value * zoomComp
 }
 
 function hitTestNode(sx: number, sy: number): SimNode | null {
@@ -224,7 +239,7 @@ function hitTestNode(sx: number, sy: number): SimNode | null {
   // 逆序检测，优先命中顶层节点
   for (let i = simNodes.length - 1; i >= 0; i--) {
     const n = simNodes[i]
-    const hitR = Math.max(nodeRadius(n) + 5 / cam.zoom, 12 / cam.zoom)
+    const hitR = Math.max(nodeRadius(n) + 6 / cam.zoom, 13 / cam.zoom)
     const dx = w.x - n.x
     const dy = w.y - n.y
     const d = Math.sqrt(dx * dx + dy * dy)
@@ -272,15 +287,15 @@ function rebuildGraph(preservePositions = true, autoFit = false) {
     hoveredNodeId.value = null
   }
 
-  // 同步预热迭代：首帧即呈现舒展平衡的星团形态，再平滑进入余震收尾
-  const warmupSteps = preservePositions ? 36 : 110
-  let warmAlpha = preservePositions ? 0.55 : 1.0
+  // 仅做轻量预热，保留肉眼可见的星团自然舒展入场动画
+  const warmupSteps = preservePositions ? 8 : 22
+  let warmAlpha = preservePositions ? 0.5 : 0.95
   for (let i = 0; i < warmupSteps; i++) {
     stepSimulation(simNodes, simEdges, forces, warmAlpha)
     warmAlpha *= 0.985
   }
 
-  simAlpha = preservePositions ? 0.42 : 0.55
+  simAlpha = preservePositions ? 0.65 : 0.92
   if (autoFit) {
     fitToView(!preservePositions)
   }
@@ -289,17 +304,17 @@ function rebuildGraph(preservePositions = true, autoFit = false) {
 
 function fitToView(instant = false) {
   if (!simNodes.length) return
+  wheelZoomTarget = null
   const b = computeBounds(simNodes)
-  // 为桌面端右侧设置面板预留一点视觉留白
+  // 为桌面端右侧设置面板预留视觉留白
   const rightPad = settingsOpen.value && viewW >= 1024 ? 270 : 32
   const availW = Math.max(240, viewW - rightPad - 48)
   const availH = Math.max(240, viewH - 96)
   const scaleX = availW / b.width
   const scaleY = availH / b.height
-  const targetZoom = Math.min(1.85, Math.max(0.32, Math.min(scaleX, scaleY) * 0.92))
-  // 中心略向左偏移一点，避开右侧展开的控制面板
+  const targetZoom = Math.min(1.65, Math.max(0.28, Math.min(scaleX, scaleY) * 0.9))
   const offsetX = settingsOpen.value && viewW >= 1024 ? rightPad / (2 * targetZoom) : 0
-  const target = { x: b.cx + offsetX * 0.55, y: b.cy, zoom: targetZoom }
+  const target = { x: b.cx + offsetX * 0.5, y: b.cy, zoom: targetZoom }
 
   if (instant) {
     cam.x = target.x
@@ -315,13 +330,16 @@ function fitToView(instant = false) {
 function focusCameraOnNode(nodeId: string, zoomBoost = false) {
   const n = simNodeById.get(nodeId)
   if (!n) return
-  const targetZoom = zoomBoost ? Math.max(cam.zoom, 1.35) : cam.zoom
+  wheelZoomTarget = null
+  const targetZoom = zoomBoost ? Math.max(cam.zoom, 1.25) : cam.zoom
   camTarget = { x: n.x, y: n.y, zoom: targetZoom }
   wakeLoop()
 }
 
 function zoomBy(factor: number) {
-  const nextZoom = Math.min(4.5, Math.max(0.22, (camTarget?.zoom ?? cam.zoom) * factor))
+  wheelZoomTarget = null
+  const baseZoom = camTarget?.zoom ?? cam.zoom
+  const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, baseZoom * factor))
   camTarget = {
     x: camTarget?.x ?? cam.x,
     y: camTarget?.y ?? cam.y,
@@ -364,24 +382,36 @@ function truncateLabel(text: string, maxLen: number): string {
   return `${text.slice(0, maxLen)}…`
 }
 
-function renderFrame(): boolean {
+function renderFrame(nowTs: number): boolean {
   if (!ctx) return false
   const dark = isDark.value
-  let stillAnimating = false
+  const dt = lastFrameTs ? Math.min(0.05, (nowTs - lastFrameTs) / 1000) : 0.016
+  lastFrameTs = nowTs
+  ambientTime += dt
 
-  // 1. 物理模拟步进
-  if (simAlpha > 0.002 || dragNode) {
-    stepSimulation(simNodes, simEdges, forces, dragNode ? Math.max(simAlpha, 0.25) : simAlpha)
-    if (!dragNode) {
-      simAlpha *= 0.988
-      if (simAlpha <= 0.002) simAlpha = 0
-    }
-    stillAnimating = true
+  // 1. 持续活态力导向模拟（主收敛 + 轻柔星尘呼吸漂浮）
+  const liveAlpha = dragNode ? Math.max(simAlpha, 0.45) : Math.max(simAlpha, ALPHA_FLOOR)
+  stepSimulation(simNodes, simEdges, forces, liveAlpha, ambientTime, AMBIENT_STRENGTH)
+  if (!dragNode && simAlpha > ALPHA_FLOOR) {
+    simAlpha = Math.max(ALPHA_FLOOR, simAlpha * 0.988)
   }
 
-  // 2. 相机平滑缓动
+  // 2a. 光标锚定平滑滚轮缩放插值（彻底消除阶梯跳跃感）
+  if (wheelZoomTarget !== null) {
+    const diff = wheelZoomTarget - cam.zoom
+    if (Math.abs(diff) < 0.0008 * cam.zoom) {
+      cam.zoom = wheelZoomTarget
+      wheelZoomTarget = null
+    } else {
+      cam.zoom += diff * 0.28
+    }
+    cam.x = wheelAnchorWorld.x - (wheelAnchorScreen.x - viewW / 2) / cam.zoom
+    cam.y = wheelAnchorWorld.y - (wheelAnchorScreen.y - viewH / 2) / cam.zoom
+  }
+
+  // 2b. 相机平滑缓动（适应画布 / 按钮缩放 / 聚焦节点）
   if (camTarget) {
-    const ease = 0.16
+    const ease = 0.18
     cam.x += (camTarget.x - cam.x) * ease
     cam.y += (camTarget.y - cam.y) * ease
     cam.zoom += (camTarget.zoom - cam.zoom) * ease
@@ -394,8 +424,6 @@ function renderFrame(): boolean {
       cam.y = camTarget.y
       cam.zoom = camTarget.zoom
       camTarget = null
-    } else {
-      stillAnimating = true
     }
   }
 
@@ -420,7 +448,6 @@ function renderFrame(): boolean {
     const diff = target - n.renderAlpha
     if (Math.abs(diff) > 0.01) {
       n.renderAlpha += diff * 0.22
-      stillAnimating = true
     } else {
       n.renderAlpha = target
     }
@@ -623,7 +650,9 @@ function renderFrame(): boolean {
     ctx.restore()
   }
 
-  // 8. 绘制文字标签（遵循 Obsidian 文字淡出阈值，焦点与邻居始终清晰置顶）
+  // 8. 切回屏幕坐标系绘制文字标签（保证任意缩放倍率下字号始终锐利一致，不再忽大忽小）
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
   const labelQueue: { node: SimNode; alpha: number; priority: number }[] = []
   for (let i = 0; i < simNodes.length; i++) {
     const n = simNodes[i]
@@ -637,23 +666,22 @@ function renderFrame(): boolean {
       continue
     }
     if (isNeighbor || isMatched) {
-      labelQueue.push({ node: n, alpha: 0.95, priority: 2 })
+      labelQueue.push({ node: n, alpha: 0.96, priority: 2 })
       continue
     }
     if (isDimMode) continue
 
     // 按缩放比例与节点重要度计算平滑淡入透明度
-    let importance = 0.55 + Math.min(0.55, n.degree * 0.08)
-    if (n.type === 'topic') importance = 1.65
-    else if (n.type === 'tag') importance = 0.72 + Math.min(0.4, n.degree * 0.06)
+    let importance = 0.62 + Math.min(0.55, n.degree * 0.08)
+    if (n.type === 'topic') importance = 1.9
+    else if (n.type === 'tag') importance = 0.78 + Math.min(0.45, n.degree * 0.06)
 
-    const vis = (cam.zoom * importance - textFadeThreshold.value) * 2.2
+    const vis = (cam.zoom * importance - textFadeThreshold.value) * 2.1
     if (vis > 0.05) {
       labelQueue.push({ node: n, alpha: Math.min(0.92, vis), priority: n.type === 'topic' ? 1 : 0 })
     }
   }
 
-  // 先画低优先级，后画高亮焦点标签，防止被压住
   labelQueue.sort((a, b) => a.priority - b.priority)
 
   ctx.textAlign = 'center'
@@ -661,26 +689,23 @@ function renderFrame(): boolean {
   for (let i = 0; i < labelQueue.length; i++) {
     const { node: n, alpha, priority } = labelQueue[i]
     const isPrimary = priority >= 3
-    const fontSize =
-      n.type === 'topic'
-        ? Math.max(11, Math.min(15, 13 * invZoom))
-        : isPrimary
-          ? Math.max(11.5, Math.min(14.5, 12.5 * invZoom))
-          : Math.max(9.5, Math.min(13, 11 * invZoom))
+    const sp = worldToScreen(n.x, n.y)
+    // 跳过视口外标签，省去无效绘制
+    if (sp.x < -140 || sp.x > viewW + 140 || sp.y < -60 || sp.y > viewH + 60) continue
 
+    const screenR = nodeRadius(n) * cam.zoom
+    const fontSize = n.type === 'topic' ? 13 : isPrimary ? 12.5 : 11.5
     const text = isPrimary || n.type === 'topic' ? n.label : truncateLabel(n.label, 16)
-    const r = nodeRadius(n)
-    const ty = n.y + r + (n.type === 'topic' ? 5.5 : 4.5) * invZoom
+    const ty = sp.y + screenR + (n.type === 'topic' ? 6 : 5)
 
     ctx.save()
     ctx.globalAlpha = alpha
     ctx.font = `${n.type === 'topic' || isPrimary ? '600' : '400'} ${fontSize}px -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`
 
-    // 背景描边光晕保证交叉线上文字也清晰可读
     ctx.lineJoin = 'round'
-    ctx.lineWidth = Math.max(2.6, 3.6 * invZoom)
-    ctx.strokeStyle = dark ? 'rgba(17, 22, 34, 0.88)' : 'rgba(244, 246, 249, 0.92)'
-    ctx.strokeText(text, n.x, ty)
+    ctx.lineWidth = 3.4
+    ctx.strokeStyle = dark ? 'rgba(17, 22, 34, 0.9)' : 'rgba(244, 246, 249, 0.94)'
+    ctx.strokeText(text, sp.x, ty)
 
     ctx.fillStyle =
       n.type === 'topic'
@@ -698,19 +723,19 @@ function renderFrame(): boolean {
             : dark
               ? '#cbd5e1'
               : '#334155'
-    ctx.fillText(text, n.x, ty)
+    ctx.fillText(text, sp.x, ty)
     ctx.restore()
   }
 
   ctx.restore()
-  return stillAnimating
+  return !isTabHidden
 }
 
-function loop() {
+function loop(nowTs: number) {
   rafId = null
   needsRender = false
-  const keepGoing = renderFrame()
-  if (keepGoing || needsRender) {
+  const keepGoing = renderFrame(nowTs)
+  if ((keepGoing || needsRender) && !isTabHidden) {
     rafId = window.requestAnimationFrame(loop)
   }
 }
@@ -752,6 +777,7 @@ function onPointerDown(e: PointerEvent) {
   const pt = getCanvasXY(e)
   activePointers.set(e.pointerId, pt)
   camTarget = null
+  wheelZoomTarget = null
 
   // 双指手势：进入 pinch-to-zoom 模式
   if (activePointers.size === 2) {
@@ -797,7 +823,7 @@ function onPointerMove(e: PointerEvent) {
     const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) || 1
     const midX = (pts[0].x + pts[1].x) / 2
     const midY = (pts[0].y + pts[1].y) / 2
-    const nextZoom = Math.min(4.5, Math.max(0.22, pinchStartZoom * (dist / pinchStartDist)))
+    const nextZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchStartZoom * (dist / pinchStartDist)))
     cam.zoom = nextZoom
     cam.x = pinchStartMidWorld.x - (midX - viewW / 2) / cam.zoom
     cam.y = pinchStartMidWorld.y - (midY - viewH / 2) / cam.zoom
@@ -893,13 +919,28 @@ function onWheel(e: WheelEvent) {
   e.preventDefault()
   camTarget = null
   const pt = getCanvasXY(e)
-  const before = screenToWorld(pt.x, pt.y)
-  const delta = -e.deltaY * (e.deltaMode === 1 ? 0.045 : 0.0014)
-  const factor = Math.exp(delta)
-  cam.zoom = Math.min(4.5, Math.max(0.22, cam.zoom * factor))
-  // 保持鼠标光标下的世界点不动
-  cam.x = before.x - (pt.x - viewW / 2) / cam.zoom
-  cam.y = before.y - (pt.y - viewH / 2) / cam.zoom
+
+  // 光标位置明显移动或刚开始新一轮缩放时，重新锚定光标对应的世界坐标
+  if (
+    wheelZoomTarget === null ||
+    Math.hypot(pt.x - wheelAnchorScreen.x, pt.y - wheelAnchorScreen.y) > 4
+  ) {
+    wheelAnchorScreen = pt
+    wheelAnchorWorld = screenToWorld(pt.x, pt.y)
+  }
+
+  // 区分 macOS 触控板捏合（ctrlKey）、像素滚动与行模式鼠标滚轮，保证手感一致丝滑
+  let rawDelta = -e.deltaY
+  if (e.deltaMode === 1) {
+    rawDelta *= 28
+  } else if (e.deltaMode === 2) {
+    rawDelta *= 240
+  }
+  const sensitivity = e.ctrlKey ? 0.011 : 0.0024
+  // 限制单次事件跨度，避免极速甩滚轮瞬间飞出视野
+  const clamped = Math.max(-0.45, Math.min(0.45, rawDelta * sensitivity))
+  const base = wheelZoomTarget ?? cam.zoom
+  wheelZoomTarget = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, base * Math.exp(clamped)))
   wakeLoop()
 }
 
@@ -1010,9 +1051,18 @@ watch(graphVersion, () => {
 
 let resizeObserver: ResizeObserver | null = null
 
+function onVisibilityChange() {
+  isTabHidden = document.hidden
+  if (!isTabHidden) {
+    lastFrameTs = 0
+    wakeLoop()
+  }
+}
+
 onMounted(() => {
   // 宽屏默认展开控制面板，小屏默认收起为右上角齿轮按钮
   settingsOpen.value = window.innerWidth >= 1120
+  isTabHidden = document.hidden
   syncCanvasSize()
   rebuildGraph(false, true)
 
@@ -1021,12 +1071,14 @@ onMounted(() => {
     resizeObserver.observe(shellRef.value)
   }
   window.addEventListener('keydown', onKeyDown)
+  document.addEventListener('visibilitychange', onVisibilityChange)
 })
 
 onBeforeUnmount(() => {
   if (rafId !== null) window.cancelAnimationFrame(rafId)
   resizeObserver?.disconnect()
   window.removeEventListener('keydown', onKeyDown)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
 })
 </script>
 
@@ -1285,9 +1337,9 @@ onBeforeUnmount(() => {
                 <input
                   v-model.number="forces.centerStrength"
                   type="range"
-                  min="0.1"
-                  max="1.4"
-                  step="0.05"
+                  min="0.02"
+                  max="1.0"
+                  step="0.02"
                   class="og-range"
                 />
               </div>
@@ -1300,9 +1352,9 @@ onBeforeUnmount(() => {
                 <input
                   v-model.number="forces.repelStrength"
                   type="range"
-                  min="3"
-                  max="24"
-                  step="0.5"
+                  min="4"
+                  max="36"
+                  step="1"
                   class="og-range"
                 />
               </div>
@@ -1315,8 +1367,8 @@ onBeforeUnmount(() => {
                 <input
                   v-model.number="forces.linkStrength"
                   type="range"
-                  min="0.2"
-                  max="2.0"
+                  min="0.05"
+                  max="1.5"
                   step="0.05"
                   class="og-range"
                 />
@@ -1330,8 +1382,8 @@ onBeforeUnmount(() => {
                 <input
                   v-model.number="forces.linkDistance"
                   type="range"
-                  min="55"
-                  max="200"
+                  min="60"
+                  max="260"
                   step="5"
                   class="og-range"
                 />

@@ -1,6 +1,6 @@
 ---
 title: AI Agent介绍
-description: 2026 主流 AI Agent 概览与选型指南：系统梳理编程 Agent（Claude Code、Cursor、Antigravity、Codex、Trae）、职场与桌面办公 Agent（腾讯 WorkBuddy、扣子空间、阿里悟空、智谱 AutoGLM、Claude Cowork）、个人 Agent（Dots、Muse、Grok Bot、Spell）、开源龙虾与云端通用 Agent（OpenClaw、QClaw、Kimi Claw、Manus）及工作流平台。
+description: 2026 主流 AI Agent 概览与选型指南：系统梳理编程 Agent（Claude Code、Cursor、Antigravity、Codex、Trae）、职场与桌面办公 Agent（腾讯 WorkBuddy、豆包工作、扣子空间、阿里悟空、智谱 AutoGLM、Claude Cowork）、个人 Agent（Dots、Muse、Grok Bot、Spell）、开源龙虾与云端通用 Agent（OpenClaw、QClaw、Kimi Claw、Manus）及工作流平台。
 date: 2026-11-20
 category: AI世界
 tags: [AI技术]
@@ -18,7 +18,7 @@ order: 3
 | 赛道 | 核心定位 | 代表产品（海外 / 国产） | 适用人群 |
 | --- | --- | --- | --- |
 | **编程与研发 Agent** | 读仓库、改代码、跑测试、提 PR，商业化最成熟 | Claude Code、Cursor、Antigravity、Codex / Trae、Qoder、Kimi Code | 开发者、技术团队 |
-| **职场与桌面办公 Agent** | 接管桌面文件、办公软件与跨网页操作，交付文档/PPT/数据 | Claude Cowork / **腾讯 WorkBuddy**、**扣子空间**、**阿里悟空**、**智谱 AutoGLM** | 职场白领、企业团队 |
+| **职场与桌面办公 Agent** | 接管桌面文件、办公软件与跨网页操作，交付文档/PPT/数据 | Claude Cowork / **腾讯 WorkBuddy**、**豆包工作**、**扣子空间**、**阿里悟空**、**智谱 AutoGLM** | 职场白领、企业团队 |
 | **个人 Agent（Personal Agent）** | 长记忆、跨应用、主动跟进日常事务的新一代 C 端入口 | OpenAI Dots、Meta Muse、xAI Grok Bot / 字节 Spell | 个人效率用户 |
 | **开源“龙虾”与云端通用 Agent** | 开源本地自托管遥控电脑，或云端沙箱全自动干杂活 | OpenClaw（龙虾）、Manus / **腾讯 QClaw**、**Kimi Claw** | 极客开发者 & 通用效率用户 |
 | **编排与工作流平台** | 可视化拖拽节点，搭建可控、可复用的业务流水线 | n8n / Dify、Coze（扣子） | 企业团队、自动化爱好者 |
@@ -49,12 +49,13 @@ order: 3
 | 产品名称 | 出品方 | 核心定位与亮点 | 生态与底层模型（可对照 [模型介绍](/articles/ai/ai-tech/model-intro)） |
 | --- | --- | --- | --- |
 | **WorkBuddy** | 腾讯 | 国内最具代表性的**全场景职场 AI 桌面工作台**（腾讯云 CodeBuddy 团队出品）。支持 `Craft`（实干直接操作本地文件）、`Plan`（先出方案确认后执行）、`Ask`（问答）三模式，具备 Computer Use 桌面操控、多 Agent 并行与团队 Skills 沉淀能力。 | 深度打通企业微信、腾讯文档、QQ 邮箱等生态；依托腾讯混元并兼容多模型。 |
+| **豆包工作（Doubao Work / 办公模式）** | 字节跳动 | 从豆包“工作任务”演进而来的独立桌面办公 Agent。支持**本地电脑 + 云电脑/虚拟桌面双模式**（关机不断线、手机可遥控）与 GUI 操控，内置 20+ 行业专业工作台；**一大亮点是开放“多模型自选”**并标注额度消耗倍率，可按任务难度自由切换大脑。 | 深度打通**飞书**文档/消息/日程/知识库；除自研豆包 Seed 2.1 外，直接支持自选 Kimi K3.1 Pro、GLM-5.3、DeepSeek-V4.1-Flash 等第三方模型。 |
 | **扣子空间（Coze Space）** | 字节跳动 | 通用型 AI Agent 与云端智能办公空间。一句话需求自动拆解执行，内置大量专家 Agent 并全面接入 **MCP** 协议，一键交付研究报告、网页、PPT 与小程序。 | 衔接飞书与字节豆包 Seed 2 生态，云端协作零门槛。 |
 | **悟空（WuKong / 千问办公）** | 阿里巴巴 | 面向企业级高效办公的 AI 原生工作平台，强调企业知识图谱、数据安全边界、跨应用连接器与团队多 Agent 协同工作流。 | 依托阿里 Qwen4-Max 与钉钉/阿里系商业办公生态。 |
 | **AutoGLM（含 AutoClaw 澳龙）** | 智谱 AI | 强于**跨应用 GUI 视觉自动化（Computer & Phone Use）**与“沉思”深度推理——不依赖软件开放 API，能像人一样看懂屏幕去操作小红书、京东、知网及各类网页后台，覆盖电脑与手机双端。 | 依托智谱 GLM-5 系列，提供桌面客户端 AutoClaw 与开源手机端权重。 |
 | **Claude Cowork** | Anthropic | 海外面向通用知识工作与日常办公的桌面 Agent（已逐步与 Claude.ai 融合），在企业非研发部门普及极快（另见 [Anthropic 招股书精读](/articles/ai/ai-invest/anthropic-ipo)）。 | 原生驱动 Claude 5 系列。 |
 
-> **选型速记**：国内桌面深度办公+企微生态首选 **WorkBuddy**；云端出报告/PPT 与 MCP 工具拼接选 **扣子空间**；需要跨网页/手机 App 模拟人工点按操作选 **AutoGLM / AutoClaw**；阿里系企业办公看 **悟空**。
+> **选型速记**：国内企微/微信生态深度办公选 **WorkBuddy**；**飞书生态 + 想自由切换多模型**或用云电脑后台挂机选 **豆包工作**；云端 MCP 拼接与快速出报告/PPT 选 **扣子空间**；跨网页/手机模拟点按操作选 **AutoGLM / AutoClaw**；阿里系企业办公看 **悟空**。
 
 ---
 
@@ -110,6 +111,6 @@ order: 3
 ## 一句话选型建议
 
 - **写代码 / 研发提效**：IDE 派选 **Cursor / Trae**，终端派选 **Claude Code**，多智能体与长上下文选 **Antigravity**，云端异步派单选 **Codex**。
-- **国内日常职场办公**：本地深度交付与企微生态选 **腾讯 WorkBuddy**；云端做调研/PPT 选 **扣子空间** 或 **Manus**；跨软件/手机点按自动化选 **智谱 AutoGLM**。
+- **国内日常职场办公**：企微与本地深度交付选 **腾讯 WorkBuddy**；飞书生态、云电脑挂机且想**自选多家大模型**选 **豆包工作**；云端做调研/PPT 选 **扣子空间** 或 **Manus**；跨软件/手机点按自动化选 **智谱 AutoGLM**。
 - **24 小时私有数字员工 & 远程遥控电脑**：极客自折腾选 **OpenClaw**（自由搭配 [模型介绍](/articles/ai/ai-tech/model-intro) 里的任意模型），想用微信直连选 **腾讯 QClaw**，免运维云托管选 **Kimi Claw**。
 - **团队标准化业务流**：选 **Dify**、**n8n** 或 **Coze**。
