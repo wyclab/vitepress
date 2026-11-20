@@ -4,7 +4,7 @@ description: 2026 主流 AI 大模型概览与选型指南：一文看懂海外�
 date: 2026-11-20
 category: AI世界
 tags: [AI技术]
-order: 5
+order: 6
 ---
 
 # 模型介绍

@@ -4,7 +4,7 @@ description: Gemma4-12B 依托于强大的 120 亿参数模型，它在本地环
 date: 2026-06-07
 category: AI世界
 tags: [AI技术]
-order: 4
+order: 5
 ---
 
 # Gemma4-12B本地部署，0token的个人助理

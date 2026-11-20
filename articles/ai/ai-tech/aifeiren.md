@@ -3,7 +3,7 @@ title: AI时代的废人
 date: 2026-01-29
 category: AI世界
 tags: [AI技术]
-order: 1
+order: 2
 ---
 
 
