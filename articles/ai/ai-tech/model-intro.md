@@ -4,12 +4,12 @@ description: 2026 主流 AI 大模型概览与选型指南：一文看懂海外�
 date: 2026-11-20
 category: AI世界
 tags: [AI技术]
-order: 6
+order: 2
 ---
 
 # 模型介绍
 
-> 这是一篇**概览型**的主流 AI 大模型速查手册（截至 2026 年 11 月），覆盖海外与国产十大核心阵营，重点梳理各家的**命名逻辑、产品定位、核心擅长领域与参考定价**，方便日常使用与开发选型时快速对号入座。
+> 这是一篇**概览型**的主流 AI 大模型速查手册（截至 2026 年 11 月），覆盖海外与国产十大核心阵营，重点梳理各家的**命名逻辑、产品定位、核心擅长领域与参考定价**。模型是 AI 系统的“大脑”（详见 [AI核心概念](/articles/ai/ai-tech/ai-concepts)），如果你想了解这些大脑在实际产品中如何落地干活，可配套阅读 [AI Agent介绍](/articles/ai/ai-tech/agent-intro)。
 
 ---
 
@@ -180,3 +180,7 @@ order: 6
 | **Seed-Evolving** | 滚动尝鲜旗舰端点 | 每周持续推送最新强化版本，适合始终想吃最新能力红利的开发流 | 同旗舰档位 |
 
 > **选型速记**：国内海量低成本调用首选 **Seed Lite / Mini**，中文多模态交互、视觉文档与性价比全能主力直接上 **Seed 2.1 Pro** 或省心的 **Seed-Evolving**。
+
+---
+
+> **延伸阅读**：选好底层“大脑”之后，下一步是选择合适的“手脚与驾驭层”——可继续阅读 [AI Agent介绍](/articles/ai/ai-tech/agent-intro)（了解 Claude Code、Cursor、Antigravity、腾讯 WorkBuddy、扣子空间、OpenClaw 龙虾、Manus 等主流 Agent 产品如何驾驭上述模型）。

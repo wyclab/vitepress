@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
       <HomeLayout v-if="frontmatter.layout === 'home'" />
     </template>
     <template #layout-bottom>
-      <SiteFooter />
+      <SiteFooter v-if="frontmatter.footer !== false" />
     </template>
     <template #doc-before>
       <ArticleHeader />

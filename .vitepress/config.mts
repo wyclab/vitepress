@@ -316,6 +316,7 @@ export default defineConfig({
       },
       // 路径沿用 /pages/tags（原标签页），页面内容已改造为「归档」
       { text: '归档', link: '/pages/tags' },
+      { text: '图谱', link: '/pages/graph' },
       { text: '友链', link: '/pages/friend' },
       { text: '关于', link: '/pages/about' },
     ],
